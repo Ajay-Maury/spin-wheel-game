@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import "./App.css"
-import { ISegments, SpinWheel } from './components';
+import { ISegments, SpinWheel } from '.';
 
 function App() {
   const [spinResult, setSpinResult] = useState<string>("")
@@ -21,10 +21,10 @@ function App() {
   return (
     <>
       <h1 className='textBox'>Spin Wheel Game</h1>
-      <div style={{ display: "flex", alignItems: "center", "justifyContent": "center", width: "100%" }}>
+      <div className='spinWheelBox'>
         <SpinWheel
           segments={segments}
-          onFinished={(winner) => onFinished(winner)}
+          onFinished={(winner: string) => onFinished(winner)}
           primaryColor='black'
           contrastColor='white'
           buttonText='Spin'

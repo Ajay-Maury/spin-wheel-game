@@ -5,6 +5,9 @@
   "type": "module",
   "author": "Ajay-Maury",
   "license": "MIT",
+  "description": "Spin Wheel Game",
+  "main": "dist/spin-wheel-game.es.js",
+  "types": "dist/spin-wheel-game.es.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/Ajay-Maury/spin-wheel-game.git"
@@ -18,6 +21,8 @@
   "homepage": "https://github.com/Ajay-Maury/spin-wheel-game#readme",
   "scripts": {
     "dev": "vite",
+    "prepublish": "npm run build",
+    "clean": "rimraf build",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -35,7 +40,12 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8"
-  }
+    "vite": "^5.0.8",
+    "vite-plugin-dts": "^3.7.0"
+  },
+  "files": [
+    "dist/**/*"
+  ]
 }

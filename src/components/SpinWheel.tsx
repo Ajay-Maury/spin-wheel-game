@@ -24,7 +24,8 @@ export const SpinWheel: React.FC<ISpinWheelProps> = ({
   const [needleText, setNeedleText] = useState<string>("");
 
   let currentSegment = '';
-  let timerHandle: number = 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let timerHandle: any = 0;
   const timerDelay = segmentTextArray.length;
   let angleCurrent = 0;
   let angleDelta = 0;
