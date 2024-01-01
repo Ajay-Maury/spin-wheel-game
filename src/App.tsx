@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import "./App.css"
-import { ISegments, SpinWheel } from '.';
+import { ISegments } from './components/SpinWheel.interface';
+import { SpinWheel } from './components/SpinWheel';
 
 function App() {
   const [spinResult, setSpinResult] = useState<string>("")
