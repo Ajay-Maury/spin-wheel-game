@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ISpinWheelProps } from './SpinWheel.interface';
+import tickingSound from "./audio/spin-wheel-sound.mp3";
+const ticTicSound = new Audio(tickingSound);
 
 export const SpinWheel: React.FC<ISpinWheelProps> = ({
   segments,
@@ -9,11 +11,12 @@ export const SpinWheel: React.FC<ISpinWheelProps> = ({
   buttonText = 'Spin',
   isOnlyOnce = true,
   size = 290,
-  upDuration = 50,
-  downDuration = 300,
+  upDuration = 100,
+  downDuration = 600,
   fontFamily = 'Arial',
   arrowLocation = 'center',
   showTextOnSpin = false,
+  isSpinSound = true
 }: ISpinWheelProps) => {
   // Separate arrays without nullish values
   const segmentTextArray = segments.map((segment) => segment.segmentText).filter(Boolean);
@@ -59,35 +62,32 @@ export const SpinWheel: React.FC<ISpinWheelProps> = ({
     if (!canvas) {
       // Create a new canvas if it doesn't exist
       canvas = document.createElement('canvas');
-      canvas.setAttribute('width', `${size}`);
-      canvas.setAttribute('height', `${size}`);
+      canvas.setAttribute('width', `${size * 2}`);
+      canvas.setAttribute('height', `${size * 2}`);
       canvas.setAttribute('id', 'canvas');
       document?.getElementById('wheel')?.appendChild(canvas);
     }
+    canvasContext = canvas.getContext('2d');
 
     canvas.style.borderRadius = '50%'; // Set border radius for a circular shape
 
     canvas?.addEventListener('click', spin, false);
-    canvasContext = canvas.getContext('2d');
   };
 
-
-  console.log('isStarted:', isStarted)
-  console.log('needleText:', needleText)
   const spin = () => {
     setIsStarted(true);
     if (timerHandle === 0) {
       spinStart = new Date().getTime();
       maxSpeed = Math.PI / segmentTextArray.length;
       frames = 0;
-      timerHandle = setInterval(onTimerTick, timerDelay);
+      timerHandle = setInterval(onTimerTick, timerDelay * 5);
     }
   };
 
   const onTimerTick = () => {
     frames++;
     wheelDraw();
-    const duration = new Date().getTime() - spinStart;
+    const duration = (new Date().getTime() - spinStart)
     let progress = 0;
     let finished = false;
 
@@ -110,8 +110,20 @@ export const SpinWheel: React.FC<ISpinWheelProps> = ({
       clearInterval(timerHandle);
       timerHandle = 0;
       angleDelta = 0;
-    }
+      ticTicSound.pause(); // Pause tic-tic sound when the wheel stops spinning
+      ticTicSound.currentTime = 0; // Reset the tic-tic sound to the beginning
+    } 
   };
+
+  useMemo(() => {
+    ticTicSound.currentTime = 0;
+    if (needleText && isSpinSound) {
+      ticTicSound.play();
+    } else {
+      ticTicSound.pause(); // Pause tic-tic sound when the wheel stops spinning
+      ticTicSound.currentTime = 0;
+    }
+  }, [needleText, isSpinSound]);
 
   const wheelDraw = () => {
     clear()
@@ -205,6 +217,7 @@ export const SpinWheel: React.FC<ISpinWheelProps> = ({
       Math.floor((change / (Math.PI * 2)) * segmentTextArray.length) -
       1
     if (i < 0) i = i + segmentTextArray.length
+    else if (i >= segmentTextArray.length) i = i - segmentTextArray.length
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillStyle = primaryColor

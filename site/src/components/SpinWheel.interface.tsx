@@ -9,8 +9,9 @@ export interface ISpinWheelProps {
   upDuration?: number;
   downDuration?: number;
   fontFamily?: string;
-  arrowLocation?: 'center' | 'top'
-  showTextOnSpin?: boolean
+  arrowLocation?: 'center' | 'top';
+  showTextOnSpin?: boolean;
+  isSpinSound?: boolean;
 }
 
 export interface ISegments {
