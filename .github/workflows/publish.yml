@@ -1,21 +1,32 @@
 name: "publish npm"
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-    publish:
-        runs-on: ubuntu-latest
-        steps:
-            - name: checkout
-              uses: actions/checkout@v4
-            - name: node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 18
-                  registry-url: https://registry.npmjs.org
-            - name: publish
-              run: npm publish --access public #--otp=${{ secrets.NPM_OTP }}
-              working-directory: .
-              env:
-                  NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-                  #NPM_OTP: ${{ secrets.NPM_OTP }}
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org
+
+      - name: Install Dependencies and Build
+        run: |
+          npm ci
+          npm run build
+        working-directory: .
+
+      - name: Publish to npm
+        run: npm publish --access public #--otp=${{ secrets.NPM_OTP }}
+        working-directory: .
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+          #NPM_OTP: ${{ secrets.NPM_OTP }}
