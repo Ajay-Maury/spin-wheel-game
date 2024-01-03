@@ -2,6 +2,10 @@
 
 A React component for a customizable and interactive spinning wheel game. This npm package provides a visually appealing and interactive spin wheel game that can be easily integrated into your React applications.
 
+## Demo
+
+Check out the [live demo](https://spin-wheel-game-git-main-ajay-maury.vercel.app/) to see the spin wheel game in action!
+
 ## Installation
 
 ```bash
