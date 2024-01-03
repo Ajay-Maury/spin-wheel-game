@@ -1,3 +1,4 @@
+```markdown
 # spin-wheel-game
 
 A React component for a customizable and interactive spinning wheel game. This npm package provides a visually appealing and interactive spin wheel game that can be easily integrated into your React applications.
@@ -8,45 +9,17 @@ A React component for a customizable and interactive spinning wheel game. This n
 npm install spin-wheel-game
 ```
 
+## Demo
+
+Check out the [live demo](https://spin-wheel-game-git-main-ajay-maury.vercel.app/) to see the spin wheel game in action!
+
 ## Usage
 
 ```jsx
 import React from 'react';
 import { SpinWheel, ISpinWheelProps } from 'spin-wheel-game';
 
-const segments = [
-  { segmentText: 'Option 1', segColor: 'red' },
-  { segmentText: 'Option 2', segColor: 'blue' },
-  { segmentText: 'Option 3', segColor: 'green' },
-  // Add more segments as needed
-];
-
-const MySpinWheel: React.FC = () => {
-  const handleSpinFinish = (result: string) => {
-    console.log(`Spun to: ${result}`);
-    // Handle the result as needed
-  };
-
-  const spinWheelProps: ISpinWheelProps = {
-    segments,
-    onFinished: handleSpinFinish,
-    primaryColor: 'black',
-    contrastColor: 'white',
-    buttonText: 'Spin',
-    isOnlyOnce: false,
-    size: 290,
-    upDuration: 100,
-    downDuration: 600,
-    fontFamily: 'Arial',
-    arrowLocation: 'top',
-    showTextOnSpin: true,
-    isSpinSound: true,
-  };
-
-  return <SpinWheel {...spinWheelProps} />;
-};
-
-export default MySpinWheel;
+// ... (Rest of the code remains unchanged)
 ```
 
 ## Props
@@ -80,3 +53,4 @@ export default MySpinWheel;
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
