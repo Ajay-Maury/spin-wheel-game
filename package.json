@@ -1,7 +1,7 @@
 {
   "name": "spin-wheel-game",
   "private": false,
-  "version": "1.1.1-alpha",
+  "version": "1.1.02-alpha",
   "type": "module",
   "author": "Ajay-Maury",
   "license": "MIT",
