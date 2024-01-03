@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ISpinWheelProps } from './SpinWheel.interface';
-import tickingSound from "./audio/spin-wheel-sound.mp3";
-const ticTicSound = new Audio(tickingSound);
+import tickingSound from "../assets/audio/spin-wheel-sound.mp3";
+const ticTicSound: HTMLAudioElement | null = typeof window !== 'undefined' ? new Audio(tickingSound) : new Audio();
 
 export const SpinWheel: React.FC<ISpinWheelProps> = ({
   segments,
@@ -117,12 +117,13 @@ export const SpinWheel: React.FC<ISpinWheelProps> = ({
 
   useMemo(() => {
     ticTicSound.currentTime = 0;
-    if (needleText && isSpinSound) {
+    if (needleText && isSpinSound && isStarted) {
       ticTicSound.play();
     } else {
       ticTicSound.pause(); // Pause tic-tic sound when the wheel stops spinning
       ticTicSound.currentTime = 0;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [needleText, isSpinSound]);
 
   const wheelDraw = () => {
