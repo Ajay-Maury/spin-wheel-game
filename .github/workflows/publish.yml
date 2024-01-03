@@ -14,8 +14,8 @@ jobs:
                   node-version: 18
                   registry-url: https://registry.npmjs.org
             - name: publish
-              run: npm publish --access public --otp=${{ secrets.NPM_OTP }}
+              run: npm publish --access public #--otp=${{ secrets.NPM_OTP }}
               working-directory: .
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-                  NPM_OTP: ${{ secrets.NPM_OTP }}
+                  #NPM_OTP: ${{ secrets.NPM_OTP }}
