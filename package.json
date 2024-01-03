@@ -1,26 +1,23 @@
 {
   "name": "spin-wheel-game",
   "private": false,
-  "version": "0.0.03-alpha-0.1",
+  "version": "1.0.0-alpha.2",
   "type": "module",
   "author": "Ajay-Maury",
   "license": "MIT",
   "description": "Spin Wheel Game",
-  "main": "dist/spin-wheel-game.umd.cjs",
-  "types": "dist/index.d.ts",
-  "module": "./dist/spin-wheel-game.js",
-  "exports": {
-    ".": {
-      "import": "./dist/spin-wheel-game.js",
-      "require": "./dist/spin-wheel-game.umd.cjs"
-    }
-  },
+  "main": "./dist/spin-wheel-game.es.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ajay-Maury/spin-wheel-game.git"
   },
   "keywords": [
-    "spin-wheel"
+    "spin-wheel",
+    "spin-wheel-game",
+    "spinning-prize-wheel",
+    "prize-wheel",
+    "wheel-of-prize",
+    "wheel-of-fortune"
   ],
   "bugs": {
     "url": "https://github.com/Ajay-Maury/spin-wheel-game/issues"

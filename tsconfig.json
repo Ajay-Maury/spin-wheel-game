@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    // "target": "ES6",
+    "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": [
       "ESNext",
@@ -10,8 +10,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     /* Bundler mode */
-    "moduleResolution": "Node",
-    "allowImportingTsExtensions": true,
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -21,11 +20,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    /* others */
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
-    "rootDir": "./src",
-    "outDir": "./dist/lib",
+    "baseUrl": "src",
+    "removeComments": true,
     "noImplicitReturns": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -37,4 +37,9 @@
     "dist",
     "node_modules"
   ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

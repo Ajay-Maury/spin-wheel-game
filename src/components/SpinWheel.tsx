@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import tickingSound from "./audio/spin-wheel-sound.mp3"
 import { ISpinWheelProps } from './SpinWheel.interface';
-import tickingSound from "./audio/spin-wheel-sound.mp3";
 const ticTicSound = new Audio(tickingSound);
 
-export const SpinWheel: React.FC<ISpinWheelProps> = ({
+const SpinWheel: React.FC<ISpinWheelProps> = ({
   segments,
   onFinished,
   primaryColor = 'black',
@@ -112,7 +112,7 @@ export const SpinWheel: React.FC<ISpinWheelProps> = ({
       angleDelta = 0;
       ticTicSound.pause(); // Pause tic-tic sound when the wheel stops spinning
       ticTicSound.currentTime = 0; // Reset the tic-tic sound to the beginning
-    } 
+    }
   };
 
   useMemo(() => {
@@ -248,3 +248,5 @@ export const SpinWheel: React.FC<ISpinWheelProps> = ({
     </div>
   );
 };
+
+export default SpinWheel

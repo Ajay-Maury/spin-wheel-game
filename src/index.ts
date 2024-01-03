@@ -1,4 +1,5 @@
-import { SpinWheel } from "./components/SpinWheel"
-import type { ISegments, ISpinWheelProps } from "./components/SpinWheel.interface"
+import { ISegments, ISpinWheelProps } from "./Components/SpinWheel.interface"
+import SpinWheel from "./Components/SpinWheel"
 
-export { SpinWheel, ISegments, ISpinWheelProps }
+export type { ISegments, ISpinWheelProps }
+export { SpinWheel }
