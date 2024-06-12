@@ -81,6 +81,15 @@ export default MySpinWheel;
 
 - `isSpinSound` (optional): A boolean indicating whether to play the spinning audio or not. Default is `true`.
 
+## Contributing
+
+We welcome contributions to improve this project! Please check out our [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to get started.
+
+If you have any questions or need help, feel free to open an issue or reach out to the maintainers.
+
+Thank you for your contributions!
+
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
