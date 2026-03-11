@@ -1,4 +1,6 @@
 name: "publish npm"
+permissions:
+  contents: read
 
 on:
   push:
