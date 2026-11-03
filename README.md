@@ -85,7 +85,7 @@ export default MySpinWheel;
 
 ## Development
 
-Requires Node.js 24.
+Requires Node.js 24 or newer.
 
 ```bash
 npm install

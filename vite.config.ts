@@ -13,7 +13,7 @@ export const relativeAlias: Record<string, string> = {
 
 export const resolveAlias = Object.entries(relativeAlias).reduce(
   (prev: Record<string, string>, [key, path]) => {
-    prev[key] = resolve(__dirname, path)
+    prev[key] = resolve(import.meta.dirname, path)
 
     return prev
   },
@@ -38,17 +38,18 @@ export default defineConfig({
   build: {
     sourcemap: true,
     lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
+      entry: path.resolve(import.meta.dirname, 'src/index.ts'),
       name: 'SpinWheelGame',
       formats: ['es', 'umd'],
       fileName: format => `spin-wheel-game.${format}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'jsxRuntime',
         },
       },
     },
