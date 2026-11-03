@@ -33,7 +33,8 @@ To contribute code, follow these steps:
 ### Code Style
 
 Please follow these guidelines to maintain a consistent code style:
-- Use [Prettier](https://prettier.io/) for code formatting.
+- Run `npm run lint` and fix any warnings before committing.
+- Run `npm run build` to make sure the library still type-checks and builds.
 - Ensure your code is well-documented and tested.
 
 ### Need Help?
