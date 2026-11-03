@@ -25,7 +25,10 @@ jobs:
         working-directory: .
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: |
+          # npm requires --tag for prereleases; use the prerelease id (e.g. alpha), else latest
+          TAG=$(node -p "const m = require('./package.json').version.match(/-([a-z]+)/i); m ? m[1].toLowerCase() : 'latest'")
+          npm publish --access public --tag "$TAG"
         working-directory: .
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}

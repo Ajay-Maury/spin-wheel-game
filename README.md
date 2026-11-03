@@ -12,6 +12,8 @@ Check out the [live demo](https://spin-wheel-game-git-main-ajay-maury.vercel.app
 npm install spin-wheel-game
 ```
 
+Requires React 18 or newer.
+
 ## Usage
 
 ```jsx
@@ -80,6 +82,17 @@ export default MySpinWheel;
 - `showTextOnSpin` (optional): A boolean indicating whether to show the spun result text after spinning. Default is `true`.
 
 - `isSpinSound` (optional): A boolean indicating whether to play the spinning audio or not. Default is `true`.
+
+## Development
+
+Requires Node.js 24.
+
+```bash
+npm install
+npm run dev     # run the demo app (example/) against the local source
+npm run lint
+npm run build   # type-check and build the library into dist/
+```
 
 ## Contributing
 
