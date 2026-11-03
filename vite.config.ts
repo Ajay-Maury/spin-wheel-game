@@ -32,6 +32,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: resolveAlias,
+    // the dev demo in example/ has its own node_modules; make it share this React
+    dedupe: ['react', 'react-dom'],
   },
   build: {
     sourcemap: true,

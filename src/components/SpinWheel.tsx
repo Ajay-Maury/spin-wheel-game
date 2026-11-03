@@ -138,9 +138,11 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   // The interval and the click handler outlive the render that created them,
   // so they always call the latest draw function and callback through refs.
   const wheelDrawRef = useRef(wheelDraw);
-  wheelDrawRef.current = wheelDraw;
   const onFinishedRef = useRef(onFinished);
-  onFinishedRef.current = onFinished;
+  useEffect(() => {
+    wheelDrawRef.current = wheelDraw;
+    onFinishedRef.current = onFinished;
+  });
 
   const stopTimer = useCallback(() => {
     if (timerHandleRef.current !== null) {
@@ -162,16 +164,15 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     setNeedleText(currentSegment);
 
     const duration = new Date().getTime() - spinStartRef.current;
-    let progress = 0;
-    let angleDelta = 0;
+    let angleDelta: number;
     let finished = false;
 
     if (duration < upTime) {
-      progress = duration / upTime;
+      const progress = duration / upTime;
       angleDelta = maxSpeed * Math.sin((progress * Math.PI) / 2);
     }
     else {
-      progress = duration / downTime;
+      const progress = duration / downTime;
       angleDelta =
         maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
       if (progress >= 1) finished = true;
@@ -209,6 +210,8 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   // Redraw whenever the wheel's appearance changes (props, or a new spin position)
   const segmentsKey = JSON.stringify(segments);
   useEffect(() => {
+    // The canvas is an external system; the needle text mirrors what it just drew
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNeedleText(wheelDraw());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [segmentsKey, primaryColor, contrastColor, buttonText, size, fontFamily, arrowLocation]);
