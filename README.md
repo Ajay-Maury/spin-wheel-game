@@ -4,7 +4,7 @@ A React component for a customizable and interactive spinning wheel game. This n
 
 ## Demo
 
-Check out the [live demo](https://spin-wheel-game-git-main-ajay-maury.vercel.app/) to see the spin wheel game in action!
+Check out the [live demo](https://spin-wheel-game-rho.vercel.app/) to see the spin wheel game in action!
 
 ## Installation
 
