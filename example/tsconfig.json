@@ -13,6 +13,11 @@
     "outDir": "./dist",
     /* Bundler mode */
     "moduleResolution": "bundler",
+    /* The library source lives outside this folder, so resolve React from here */
+    "paths": {
+      "react": ["./node_modules/@types/react"],
+      "react/jsx-runtime": ["./node_modules/@types/react/jsx-runtime"]
+    },
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -25,7 +30,8 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src"
+    "src",
+    "../src"
   ],
   "exclude": [
     "node_modules",
