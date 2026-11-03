@@ -12,6 +12,7 @@ export interface ISpinWheelProps {
   arrowLocation?: 'center' | 'top';
   showTextOnSpin?: boolean;
   isSpinSound?: boolean;
+  responsive?: boolean;
 }
 
 export interface ISegments {

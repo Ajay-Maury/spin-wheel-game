@@ -15,7 +15,8 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   fontFamily = 'Arial',
   arrowLocation = 'center',
   showTextOnSpin = true,
-  isSpinSound = true
+  isSpinSound = true,
+  responsive = true
 }: ISpinWheelProps) => {
   // Separate arrays without nullish values
   const segmentTextArray = segments.map((segment) => segment.segmentText).filter(Boolean);
@@ -227,8 +228,14 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     }
   }, [needleText, isSpinSound, isStarted, isFinished]);
 
+  // The canvas keeps its drawing resolution (size * 2) and only its displayed size
+  // scales down, so the wheel shrinks to fit narrow containers but never grows past `size`.
+  const wrapperStyle: React.CSSProperties | undefined = responsive
+    ? { width: '100%', maxWidth: size * 2, minWidth: 0 }
+    : undefined;
+
   return (
-    <div>
+    <div style={wrapperStyle}>
       <canvas
         ref={canvasRef}
         width={size * 2}
@@ -236,6 +243,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
         onClick={spin}
         style={{
           borderRadius: '50%', // Circular shape
+          ...(responsive && { display: 'block', width: '100%', height: 'auto' }),
           pointerEvents: isFinished && isOnlyOnce ? 'none' : 'auto',
         }}
       />
