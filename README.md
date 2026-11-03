@@ -75,7 +75,7 @@ export default MySpinWheel;
 
 - `fontFamily` (optional): The font family used for text. Default is `'Arial'`.
 
-- `arrowLocation` (optional): The location of the arrow on the needle, either `'center'` or `'top'`. Default is `'top'`.
+- `arrowLocation` (optional): The location of the arrow on the needle, either `'center'` or `'top'`. Default is `'center'`.
 
 - `showTextOnSpin` (optional): A boolean indicating whether to show the spun result text after spinning. Default is `true`.
 

@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import tickingSound from "../assets/audio/spin-wheel-sound.mp3"
 import { ISpinWheelProps } from './SpinWheel.interface';
-
-const ticTicSound: HTMLAudioElement | null = typeof window !== 'undefined' ? new Audio(tickingSound) : new Audio();
 
 const SpinWheel: React.FC<ISpinWheelProps> = ({
   segments,
@@ -27,114 +25,20 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   const [isStarted, setIsStarted] = useState<boolean>(false);
   const [needleText, setNeedleText] = useState<string>("");
 
-  let currentSegment = '';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let timerHandle: any = 0;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ticTicSoundRef = useRef<HTMLAudioElement | null>(null);
+  const timerHandleRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const angleCurrentRef = useRef(0);
+  const spinStartRef = useRef(0);
+
   const timerDelay = segmentTextArray.length;
-  let angleCurrent = 0;
-  let angleDelta = 0;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let canvasContext: any = null;
-  let maxSpeed = Math.PI / segmentTextArray.length;
   const upTime = segmentTextArray.length * upDuration;
   const downTime = segmentTextArray.length * downDuration;
-  let spinStart = 0;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let frames = 0;
-  const centerX = (size);
-  const centerY = (size);
+  const maxSpeed = Math.PI / segmentTextArray.length;
+  const centerX = size;
+  const centerY = size;
 
-  useEffect(() => {
-    wheelInit();
-    setTimeout(() => {
-      window.scrollTo(0, 1);
-    }, 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const wheelInit = () => {
-    initCanvas();
-    wheelDraw();
-  };
-
-  const initCanvas = () => {
-    let canvas: HTMLCanvasElement | null = document.getElementById('canvas') as HTMLCanvasElement;
-
-    if (!canvas) {
-      // Create a new canvas if it doesn't exist
-      canvas = document.createElement('canvas');
-      canvas.setAttribute('width', `${size * 2}`);
-      canvas.setAttribute('height', `${size * 2}`);
-      canvas.setAttribute('id', 'canvas');
-      document?.getElementById('wheel')?.appendChild(canvas);
-    }
-    canvasContext = canvas.getContext('2d');
-
-    canvas.style.borderRadius = '50%'; // Set border radius for a circular shape
-
-    canvas?.addEventListener('click', spin, false);
-  };
-
-  const spin = () => {
-    setIsStarted(true);
-    if (timerHandle === 0) {
-      spinStart = new Date().getTime();
-      maxSpeed = Math.PI / segmentTextArray.length;
-      frames = 0;
-      timerHandle = setInterval(onTimerTick, timerDelay * 5);
-    }
-  };
-
-  const onTimerTick = () => {
-    frames++;
-    wheelDraw();
-    const duration = (new Date().getTime() - spinStart)
-    let progress = 0;
-    let finished = false;
-
-    if (duration < upTime) {
-      progress = duration / upTime;
-      angleDelta = maxSpeed * Math.sin((progress * Math.PI) / 2);
-    }
-    else {
-      progress = duration / downTime;
-      angleDelta =
-        maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
-      if (progress >= 1) finished = true;
-    }
-
-    angleCurrent += angleDelta;
-    while (angleCurrent >= Math.PI * 2) angleCurrent -= Math.PI * 2;
-    if (finished) {
-      setFinished(true);
-      onFinished(currentSegment);
-      clearInterval(timerHandle);
-      timerHandle = 0;
-      angleDelta = 0;
-      ticTicSound.pause(); // Pause tic-tic sound when the wheel stops spinning
-      ticTicSound.currentTime = 0; // Reset the tic-tic sound to the beginning
-    }
-  };
-
-  useMemo(() => {
-    ticTicSound.currentTime = 0;
-    if (needleText && isSpinSound && isStarted) {
-      ticTicSound?.play();
-    } else {
-      ticTicSound.pause(); // Pause tic-tic sound when the wheel stops spinning
-      ticTicSound.currentTime = 0;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [needleText, isSpinSound]);
-
-  const wheelDraw = () => {
-    clear()
-    drawWheel()
-    drawNeedle()
-  }
-
-  const drawSegment = (key: number, lastAngle: number, angle: number) => {
-    const ctx = canvasContext
+  const drawSegment = (ctx: CanvasRenderingContext2D, key: number, lastAngle: number, angle: number) => {
     const value = segmentTextArray[key]
     ctx.save()
     ctx.beginPath()
@@ -142,7 +46,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     ctx.arc(centerX, centerY, size, lastAngle, angle, false)
     ctx.lineTo(centerX, centerY)
     ctx.closePath()
-    ctx.fillStyle = segColorArray[key]
+    ctx.fillStyle = segColorArray[key] as string
     ctx.fill()
     ctx.stroke()
     ctx.save()
@@ -154,9 +58,8 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     ctx.restore()
   }
 
-  const drawWheel = () => {
-    const ctx = canvasContext
-    let lastAngle = angleCurrent
+  const drawWheel = (ctx: CanvasRenderingContext2D) => {
+    let lastAngle = angleCurrentRef.current
     const len = segmentTextArray.length
     const PI2 = Math.PI * 2
     ctx.lineWidth = 1
@@ -165,8 +68,8 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     ctx.textAlign = 'center'
     ctx.font = '1em ' + fontFamily
     for (let i = 1; i <= len; i++) {
-      const angle = PI2 * (i / len) + angleCurrent
-      drawSegment(i - 1, lastAngle, angle)
+      const angle = PI2 * (i / len) + angleCurrentRef.current
+      drawSegment(ctx, i - 1, lastAngle, angle)
       lastAngle = angle
     }
 
@@ -194,11 +97,11 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     ctx.stroke()
   }
 
-  const drawNeedle = () => {
-    const ctx = canvasContext
+  // Draws the needle and returns the text of the segment it points at
+  const drawNeedle = (ctx: CanvasRenderingContext2D): string => {
     ctx.lineWidth = 1
     ctx.strokeStyle = contrastColor
-    ctx.fileStyle = contrastColor
+    ctx.fillStyle = contrastColor
     ctx.beginPath()
 
     if (arrowLocation === "top") {
@@ -213,33 +116,123 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
 
     ctx.closePath()
     ctx.fill()
-    const change = angleCurrent + Math.PI / 2
+    const change = angleCurrentRef.current + Math.PI / 2
     let i =
       segmentTextArray.length -
       Math.floor((change / (Math.PI * 2)) * segmentTextArray.length) -
       1
     if (i < 0) i = i + segmentTextArray.length
     else if (i >= segmentTextArray.length) i = i - segmentTextArray.length
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillStyle = primaryColor
-    ctx.font = 'bold 1.5em ' + fontFamily
-    currentSegment = segmentTextArray[i]
-    setNeedleText(segmentTextArray[i])
+    return segmentTextArray[i]
   }
 
-  const clear = () => {
-    const ctx = canvasContext;
-    ctx.clearRect(0, 0, size, size);
+  // Redraws the whole wheel and returns the segment currently under the needle
+  const wheelDraw = (): string => {
+    const ctx = canvasRef.current?.getContext('2d')
+    if (!ctx) return ''
+    ctx.clearRect(0, 0, size * 2, size * 2)
+    drawWheel(ctx)
+    return drawNeedle(ctx)
+  }
+
+  // The interval and the click handler outlive the render that created them,
+  // so they always call the latest draw function and callback through refs.
+  const wheelDrawRef = useRef(wheelDraw);
+  wheelDrawRef.current = wheelDraw;
+  const onFinishedRef = useRef(onFinished);
+  onFinishedRef.current = onFinished;
+
+  const stopTimer = useCallback(() => {
+    if (timerHandleRef.current !== null) {
+      clearInterval(timerHandleRef.current);
+      timerHandleRef.current = null;
+    }
+  }, []);
+
+  const stopSound = useCallback(() => {
+    const sound = ticTicSoundRef.current;
+    if (sound) {
+      sound.pause(); // Pause tic-tic sound when the wheel stops spinning
+      sound.currentTime = 0; // Reset the tic-tic sound to the beginning
+    }
+  }, []);
+
+  const onTimerTick = () => {
+    const currentSegment = wheelDrawRef.current();
+    setNeedleText(currentSegment);
+
+    const duration = new Date().getTime() - spinStartRef.current;
+    let progress = 0;
+    let angleDelta = 0;
+    let finished = false;
+
+    if (duration < upTime) {
+      progress = duration / upTime;
+      angleDelta = maxSpeed * Math.sin((progress * Math.PI) / 2);
+    }
+    else {
+      progress = duration / downTime;
+      angleDelta =
+        maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
+      if (progress >= 1) finished = true;
+    }
+
+    angleCurrentRef.current += angleDelta;
+    while (angleCurrentRef.current >= Math.PI * 2) angleCurrentRef.current -= Math.PI * 2;
+    if (finished) {
+      stopTimer();
+      stopSound();
+      setFinished(true);
+      onFinishedRef.current(currentSegment);
+    }
   };
 
+  const spin = () => {
+    setIsStarted(true);
+    if (timerHandleRef.current === null) {
+      setFinished(false);
+      spinStartRef.current = new Date().getTime();
+      timerHandleRef.current = setInterval(onTimerTick, timerDelay * 5);
+    }
+  };
+
+  useEffect(() => {
+    ticTicSoundRef.current = new Audio(tickingSound);
+    window.scrollTo(0, 1);
+    return () => {
+      stopTimer();
+      stopSound();
+      ticTicSoundRef.current = null;
+    };
+  }, [stopTimer, stopSound]);
+
+  // Redraw whenever the wheel's appearance changes (props, or a new spin position)
+  const segmentsKey = JSON.stringify(segments);
+  useEffect(() => {
+    setNeedleText(wheelDraw());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [segmentsKey, primaryColor, contrastColor, buttonText, size, fontFamily, arrowLocation]);
+
+  useEffect(() => {
+    const sound = ticTicSoundRef.current;
+    if (!sound) return;
+    sound.currentTime = 0;
+    if (needleText && isSpinSound && isStarted && !isFinished) {
+      sound.play().catch(() => { /* autoplay may be blocked */ });
+    } else {
+      sound.pause();
+    }
+  }, [needleText, isSpinSound, isStarted, isFinished]);
+
   return (
-    <div id='wheel'>
+    <div>
       <canvas
-        id='canvas'
+        ref={canvasRef}
         width={size * 2}
         height={size * 2}
+        onClick={spin}
         style={{
+          borderRadius: '50%', // Circular shape
           pointerEvents: isFinished && isOnlyOnce ? 'none' : 'auto',
         }}
       />

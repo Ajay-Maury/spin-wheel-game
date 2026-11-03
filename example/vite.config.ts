@@ -5,4 +5,8 @@ export default defineConfig({
   plugins: [
     react(),
   ],
+  server: {
+    // the demo imports the library source from the parent directory
+    fs: { allow: ['..'] },
+  },
 })
