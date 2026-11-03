@@ -47,6 +47,7 @@ const MySpinWheel: React.FC = () => {
     arrowLocation: 'top',
     showTextOnSpin: true,
     isSpinSound: true,
+    responsive: true,
   };
 
   return <SpinWheel {...spinWheelProps} />;
@@ -82,6 +83,8 @@ export default MySpinWheel;
 - `showTextOnSpin` (optional): A boolean indicating whether to show the spun result text after spinning. Default is `true`.
 
 - `isSpinSound` (optional): A boolean indicating whether to play the spinning audio or not. Default is `true`.
+
+- `responsive` (optional): A boolean indicating whether the wheel should shrink to fit its container, for example on small screens. The wheel never grows beyond its `size`. Set to `false` to always render at a fixed pixel size. Default is `true`.
 
 ## Development
 

@@ -33,6 +33,7 @@ function App() {
     arrowLocation: 'top',
     showTextOnSpin: true,
     isSpinSound: true,
+    responsive: true,
   };
 
   return (
