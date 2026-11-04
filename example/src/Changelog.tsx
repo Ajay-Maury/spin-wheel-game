@@ -24,7 +24,8 @@ const parseChangelog = (source: string) => {
     else if (section && current) current.sections.push({ title: section[1].trim(), items: [] });
     else if (item && current?.sections.length) current.sections[current.sections.length - 1].items.push(item[1]);
   }
-  return { releases, links };
+  // An empty [Unreleased] block (right after a release) has nothing to show yet
+  return { releases: releases.filter((release) => release.sections.length > 0), links };
 };
 
 // Renders `code` and [text](url) inside a changelog line
