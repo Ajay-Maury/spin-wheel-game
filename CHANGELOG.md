@@ -4,13 +4,16 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-04
+
 ### Added
-- The demo site now has a props playground, the full docs and these release notes.
+- The demo site now has a props playground, the full docs, these release notes and links to star the repo.
 
 ### Changed
 - The wheel now lands on a random segment. Every spin used to travel almost the same distance, so a wheel kept landing on the same segment. Spins can be up to about 35% faster than before.
 - `react` is now a peer dependency (`>=18`) instead of a dependency, which avoids duplicate copies of React in your app.
 - `package.json` now has `types`, `module` and `exports`, so TypeScript finds the bundled typings.
+- The npm description, keywords and homepage now describe the package (React, prize wheel, wheel of fortune, giveaways, raffles), so it is easier to find. `homepage` points at the demo site.
 - Removed the `engines.node` restriction (it applied to people installing the package). Node 24 is still used for development.
 
 ### Fixed
@@ -57,7 +60,8 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 ### Changed
 - First release published under the plain name `spin-wheel-game` on npm. The package config used to point at GitHub Packages as `@ajay-maury/spin-wheel-game`.
 
-[Unreleased]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/Ajay-Maury/spin-wheel-game/releases/tag/v1.3.1
 [1.3.0]: https://github.com/Ajay-Maury/spin-wheel-game/commit/e15d796
 [1.2.1]: https://github.com/Ajay-Maury/spin-wheel-game/commit/8c28743
