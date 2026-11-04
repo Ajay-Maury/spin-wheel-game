@@ -18,9 +18,11 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   isSpinSound = true,
   responsive = true
 }: ISpinWheelProps) => {
-  // Separate arrays without nullish values
-  const segmentTextArray = segments.map((segment) => segment.segmentText).filter(Boolean);
-  const segColorArray = segments.map((segment) => segment.segColor).filter(Boolean);
+  // Drop segments without text first, so text and color stay aligned per segment
+  const validSegments = segments.filter((segment) => segment.segmentText);
+  const segmentTextArray = validSegments.map((segment) => segment.segmentText);
+  const segColorArray = validSegments.map((segment) => segment.segColor ?? primaryColor);
+  const canSpin = segmentTextArray.length >= 2;
 
   const [isFinished, setFinished] = useState<boolean>(false);
   const [isStarted, setIsStarted] = useState<boolean>(false);
@@ -47,7 +49,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     ctx.arc(centerX, centerY, size, lastAngle, angle, false)
     ctx.lineTo(centerX, centerY)
     ctx.closePath()
-    ctx.fillStyle = segColorArray[key] as string
+    ctx.fillStyle = segColorArray[key]
     ctx.fill()
     ctx.stroke()
     ctx.save()
@@ -130,7 +132,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   // Redraws the whole wheel and returns the segment currently under the needle
   const wheelDraw = (): string => {
     const ctx = canvasRef.current?.getContext('2d')
-    if (!ctx) return ''
+    if (!ctx || !canSpin) return ''
     ctx.clearRect(0, 0, size * 2, size * 2)
     drawWheel(ctx)
     return drawNeedle(ctx)
@@ -190,6 +192,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   };
 
   const spin = () => {
+    if (!canSpin) return;
     setIsStarted(true);
     if (timerHandleRef.current === null) {
       setFinished(false);
@@ -233,6 +236,11 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   const wrapperStyle: React.CSSProperties | undefined = responsive
     ? { width: '100%', maxWidth: size * 2, minWidth: 0 }
     : undefined;
+
+  if (!canSpin) {
+    console.warn('SpinWheel: at least 2 segments with segmentText are required.');
+    return null;
+  }
 
   return (
     <div style={wrapperStyle}>
