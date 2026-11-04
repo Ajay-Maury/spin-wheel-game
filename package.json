@@ -5,7 +5,7 @@
   "type": "module",
   "author": "Ajay-Maury",
   "license": "MIT",
-  "description": "Spin Wheel Game",
+  "description": "A customizable spin wheel (prize wheel / wheel of fortune) component for React. TypeScript, responsive, with spin sound. Great for giveaways, raffles and random pickers.",
   "main": "./dist/spin-wheel-game.es.js",
   "module": "./dist/spin-wheel-game.es.js",
   "types": "./dist/index.d.ts",
@@ -22,17 +22,32 @@
     "url": "git+https://github.com/Ajay-Maury/spin-wheel-game.git"
   },
   "keywords": [
+    "react",
+    "react-component",
+    "react-spin-wheel",
     "spin-wheel",
     "spin-wheel-game",
+    "spinning-wheel",
     "spinning-prize-wheel",
     "prize-wheel",
     "wheel-of-prize",
-    "wheel-of-fortune"
+    "wheel-of-fortune",
+    "fortune-wheel",
+    "lucky-wheel",
+    "lucky-draw",
+    "roulette",
+    "raffle",
+    "giveaway",
+    "random-picker",
+    "decision-wheel",
+    "gamification",
+    "canvas",
+    "typescript"
   ],
   "bugs": {
     "url": "https://github.com/Ajay-Maury/spin-wheel-game/issues"
   },
-  "homepage": "https://github.com/Ajay-Maury/spin-wheel-game#readme",
+  "homepage": "https://spin-wheel-game-rho.vercel.app/",
   "scripts": {
     "dev": "vite",
     "prepublish": "npm run build",

@@ -1,6 +1,8 @@
 # spin-wheel-game
 
 [![npm version](https://img.shields.io/npm/v/spin-wheel-game.svg)](https://www.npmjs.com/package/spin-wheel-game)
+[![npm downloads](https://img.shields.io/npm/dm/spin-wheel-game.svg)](https://www.npmjs.com/package/spin-wheel-game)
+[![GitHub stars](https://img.shields.io/github/stars/Ajay-Maury/spin-wheel-game?style=flat&logo=github)](https://github.com/Ajay-Maury/spin-wheel-game)
 [![license](https://img.shields.io/npm/l/spin-wheel-game.svg)](LICENSE)
 
 A customizable spin wheel (prize wheel / wheel of fortune) component for React. Click the wheel and it spins, ticks, slows down and tells you which segment it landed on.
@@ -17,6 +19,8 @@ Try the [live demo](https://spin-wheel-game-rho.vercel.app/). It has a playgroun
 - Optional tick sound while spinning
 - Written in TypeScript, typings included
 - Works with React 18 and newer, and several wheels can share a page
+
+Use it for prize draws, giveaways, raffles, lucky draws, random pickers and game-style "spin to decide" screens.
 
 ## Installation
 
@@ -103,6 +107,10 @@ npm run dev     # run the demo app (example/) against the local source
 npm run lint
 npm run build   # type-check and build the library into dist/
 ```
+
+## Support
+
+If this package saved you time, please [star it on GitHub](https://github.com/Ajay-Maury/spin-wheel-game). It helps other developers find it. You can also share the [demo](https://spin-wheel-game-rho.vercel.app/), [report a bug or suggest an idea](https://github.com/Ajay-Maury/spin-wheel-game/issues), or send a pull request.
 
 ## Contributing
 
