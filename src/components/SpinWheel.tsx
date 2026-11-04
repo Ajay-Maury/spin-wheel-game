@@ -2,24 +2,33 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import tickingSound from "../assets/audio/spin-wheel-sound.mp3"
 import { ISpinWheelProps } from './SpinWheel.interface';
 
+// Invalid numeric props (NaN, negative, zero where it makes no sense) would turn the
+// wheel angle into NaN and break it for good, so fall back to the defaults.
+const positiveOr = (value: number, fallback: number) =>
+  Number.isFinite(value) && value > 0 ? value : fallback;
+
 const SpinWheel: React.FC<ISpinWheelProps> = ({
-  segments,
+  segments = [],
   onFinished,
   primaryColor = 'black',
   contrastColor = 'white',
   buttonText = 'Spin',
   isOnlyOnce = false,
-  size = 290,
-  upDuration = 100,
-  downDuration = 600,
+  size: sizeProp = 290,
+  upDuration: upDurationProp = 100,
+  downDuration: downDurationProp = 600,
   fontFamily = 'Arial',
   arrowLocation = 'center',
   showTextOnSpin = true,
   isSpinSound = true,
   responsive = true
 }: ISpinWheelProps) => {
+  const size = positiveOr(sizeProp, 290);
+  const upDuration = Number.isFinite(upDurationProp) && upDurationProp >= 0 ? upDurationProp : 100;
+  const downDuration = positiveOr(downDurationProp, 600);
+
   // Drop segments without text first, so text and color stay aligned per segment
-  const validSegments = segments.filter((segment) => segment.segmentText);
+  const validSegments = segments.filter((segment) => segment?.segmentText);
   const segmentTextArray = validSegments.map((segment) => segment.segmentText);
   const segColorArray = validSegments.map((segment) => segment.segColor ?? primaryColor);
   const canSpin = segmentTextArray.length >= 2;
@@ -33,6 +42,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   const timerHandleRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const angleCurrentRef = useRef(0);
   const spinStartRef = useRef(0);
+  const speedScaleRef = useRef(1);
 
   const timerDelay = segmentTextArray.length;
   const upTime = segmentTextArray.length * upDuration;
@@ -162,8 +172,33 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     }
   }, []);
 
+  // Total angle a spin travels at speed scale 1. Every spin of a given wheel
+  // covers (almost) this same distance, so without a random scale it would
+  // always land on the same segment.
+  const nominalRotation = () => {
+    let total = 0;
+    // Bounded so absurdly long durations can't freeze the page; the estimate only
+    // has to be close, the spin itself is not affected.
+    for (let t = timerDelay * 5, ticks = 0; ticks < 100000; t += timerDelay * 5, ticks++) {
+      if (t < upTime) {
+        total += maxSpeed * Math.sin((t / upTime) * Math.PI / 2);
+      } else {
+        const progress = t / downTime;
+        total += maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
+        if (progress >= 1) break;
+      }
+    }
+    return total;
+  };
+
   const onTimerTick = () => {
     const currentSegment = wheelDrawRef.current();
+    if (!currentSegment) {
+      // Nothing to draw any more (segments were emptied or the canvas is gone)
+      stopTimer();
+      stopSound();
+      return;
+    }
     setNeedleText(currentSegment);
 
     const duration = new Date().getTime() - spinStartRef.current;
@@ -172,17 +207,19 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
 
     if (duration < upTime) {
       const progress = duration / upTime;
-      angleDelta = maxSpeed * Math.sin((progress * Math.PI) / 2);
+      angleDelta = maxSpeed * speedScaleRef.current * Math.sin((progress * Math.PI) / 2);
     }
     else {
       const progress = duration / downTime;
       angleDelta =
-        maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
+        maxSpeed * speedScaleRef.current * Math.sin((progress * Math.PI) / 2 + Math.PI / 2);
       if (progress >= 1) finished = true;
     }
 
     angleCurrentRef.current += angleDelta;
-    while (angleCurrentRef.current >= Math.PI * 2) angleCurrentRef.current -= Math.PI * 2;
+    angleCurrentRef.current = Number.isFinite(angleCurrentRef.current)
+      ? ((angleCurrentRef.current % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
+      : 0;
     if (finished) {
       stopTimer();
       stopSound();
@@ -196,6 +233,10 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     setIsStarted(true);
     if (timerHandleRef.current === null) {
       setFinished(false);
+      // Vary the travelled distance by two full turns (rotation is linear in speed),
+      // which makes the landing segment uniformly random. The scale never drops
+      // below 1, so the wheel never slows down or turns backwards.
+      speedScaleRef.current = 1 + Math.random() * ((4 * Math.PI) / (nominalRotation() || 1));
       spinStartRef.current = new Date().getTime();
       timerHandleRef.current = setInterval(onTimerTick, timerDelay * 5);
     }
