@@ -6,6 +6,7 @@ import { defaults, propDocs } from './docs';
 
 const REPO = 'https://github.com/Ajay-Maury/spin-wheel-game';
 const NPM = 'https://www.npmjs.com/package/spin-wheel-game';
+const SITE = 'https://spin-wheel-game-rho.vercel.app/';
 
 const starterSegments: ISegments[] = [
   { segmentText: "Try again", segColor: "#EE4040" },
@@ -173,6 +174,24 @@ function Playground() {
   );
 }
 
+function Support() {
+  const { copied, copy } = useCopy(SITE);
+  return (
+    <div className="card support">
+      <div>
+        <h2>Like it? Support it</h2>
+        <p>spin-wheel-game is free and open source. If it saved you some time, a star on GitHub helps other developers find it, and it tells me it is worth keeping up.</p>
+      </div>
+      <div className="support-actions">
+        <a className="btn btn-primary" href={REPO}>★ Star on GitHub</a>
+        <button type="button" className="btn" onClick={copy}>{copied ? 'Link copied' : 'Share this page'}</button>
+        <a className="btn" href={`${REPO}/issues`}>Report a bug or idea</a>
+        <a className="btn" href={`${REPO}/blob/main/CONTRIBUTING.md`}>Contribute</a>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <>
@@ -198,11 +217,12 @@ function App() {
             <InstallPill />
             <div className="cta">
               <a className="btn btn-primary" href="#playground">Try the playground</a>
-              <a className="btn" href={NPM}>View on npm</a>
+              <a className="btn" href={REPO}>★ Star on GitHub</a>
             </div>
             <p className="badges">
               <a href={NPM}><img alt="npm version" src="https://img.shields.io/npm/v/spin-wheel-game.svg" /></a>
               <a href={NPM}><img alt="npm downloads" src="https://img.shields.io/npm/dm/spin-wheel-game.svg" /></a>
+              <a href={REPO}><img alt="GitHub stars" src="https://img.shields.io/github/stars/Ajay-Maury/spin-wheel-game?style=flat&logo=github" /></a>
               <a href={`${REPO}/blob/main/LICENSE`}><img alt="license" src="https://img.shields.io/npm/l/spin-wheel-game.svg" /></a>
             </p>
           </div>
@@ -259,6 +279,10 @@ function App() {
           <h2>Releases</h2>
           <p className="section-lead">What changed in each version, newest first. The same notes live in <a href={`${REPO}/blob/main/CHANGELOG.md`}>CHANGELOG.md</a>.</p>
           <Changelog />
+        </section>
+
+        <section id="support">
+          <Support />
         </section>
       </main>
 

@@ -213,3 +213,10 @@ footer { margin-top: 24px; border-top: 1px solid var(--border); color: var(--mut
   .row { grid-template-columns: 1fr; gap: 6px; }
   h2 { font-size: 1.5rem; }
 }
+
+/* Support */
+.support { display: grid; gap: 20px; padding: 24px; background: radial-gradient(circle at 0% 0%, var(--accent-soft), transparent 60%), var(--surface); }
+.support h2 { margin-bottom: 8px; }
+.support p { margin: 0; color: var(--muted); max-width: 60ch; }
+.support-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+@media (min-width: 900px) { .support { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } .support-actions { justify-content: flex-end; max-width: 380px; } }
