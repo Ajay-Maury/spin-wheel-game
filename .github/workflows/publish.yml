@@ -18,13 +18,28 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - name: Install Dependencies and Build
+      - name: Install Dependencies, Lint and Build
         run: |
           npm ci
+          npm run lint
           npm run build
         working-directory: .
 
+      - name: Check whether this version is already published
+        id: version
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+            echo "$NAME@$VERSION is already on npm; skipping publish."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+        working-directory: .
+
       - name: Publish to npm
+        if: steps.version.outputs.publish == 'true'
         run: |
           # npm requires --tag for prereleases; use the prerelease id (e.g. alpha), else latest
           TAG=$(node -p "const m = require('./package.json').version.match(/-([a-z]+)/i); m ? m[1].toLowerCase() : 'latest'")

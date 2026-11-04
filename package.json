@@ -7,6 +7,16 @@
   "license": "MIT",
   "description": "Spin Wheel Game",
   "main": "./dist/spin-wheel-game.es.js",
+  "module": "./dist/spin-wheel-game.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/spin-wheel-game.es.js",
+      "default": "./dist/spin-wheel-game.es.js"
+    },
+    "./package.json": "./package.json"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ajay-Maury/spin-wheel-game.git"
@@ -55,8 +65,5 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
-  },
-  "engines": {
-    "node": "24.x"
   }
 }
