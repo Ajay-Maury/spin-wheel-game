@@ -1,10 +1,22 @@
 # spin-wheel-game
 
-A React component for a customizable and interactive spinning wheel game. This npm package provides a visually appealing and interactive spin wheel game that can be easily integrated into your React applications.
+[![npm version](https://img.shields.io/npm/v/spin-wheel-game.svg)](https://www.npmjs.com/package/spin-wheel-game)
+[![license](https://img.shields.io/npm/l/spin-wheel-game.svg)](LICENSE)
+
+A customizable spin wheel (prize wheel / wheel of fortune) component for React. Click the wheel and it spins, ticks, slows down and tells you which segment it landed on.
 
 ## Demo
 
-Check out the [live demo](https://spin-wheel-game-rho.vercel.app/) to see the spin wheel game in action!
+Try the [live demo](https://spin-wheel-game-rho.vercel.app/). It has a playground where you can change the props, the full docs, and the release notes.
+
+## Features
+
+- Random result on every spin
+- Any number of segments (2 or more), each with its own text and color
+- Shrinks to fit its container, so it works on phones (`responsive`)
+- Optional tick sound while spinning
+- Written in TypeScript, typings included
+- Works with React 18 and newer, and several wheels can share a page
 
 ## Installation
 
@@ -58,33 +70,28 @@ export default MySpinWheel;
 
 ## Props
 
-- `segments`: An array of objects representing the segments of the wheel. Each object should have a `segmentText` property, and optionally a `segColor` property for specifying the segment color.
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `segments` | `{ segmentText: string; segColor?: string }[]` | required | The wheel segments. Needs at least 2 with text. Segments without `segColor` use `primaryColor`. |
+| `onFinished` | `(result: string) => void` | required | Called with the winning `segmentText` when the wheel stops. |
+| `primaryColor` | `string` | `'black'` | Color of the wheel outline and center button. |
+| `contrastColor` | `string` | `'white'` | Color of the text and the needle. |
+| `buttonText` | `string` | `'Spin'` | Text in the center button. |
+| `isOnlyOnce` | `boolean` | `false` | Allow only one spin. |
+| `size` | `number` | `290` | Wheel radius in pixels. The canvas is `size * 2` wide. |
+| `upDuration` | `number` | `100` | Spin-up time in ms per segment. |
+| `downDuration` | `number` | `600` | Spin-down time in ms per segment. |
+| `fontFamily` | `string` | `'Arial'` | Font for the segment text and result. |
+| `arrowLocation` | `'center' \| 'top'` | `'center'` | Where the needle is drawn. |
+| `showTextOnSpin` | `boolean` | `true` | Show the segment under the needle below the wheel while spinning. |
+| `isSpinSound` | `boolean` | `true` | Play the tick sound while spinning. |
+| `responsive` | `boolean` | `true` | Shrink to fit the container. The wheel never grows past `size`. Use `false` for a fixed pixel size. |
 
-- `onFinished`: A callback function that will be called when the wheel stops spinning. It receives the result as a string.
+Invalid values for `size`, `upDuration` and `downDuration` (`NaN`, negative, or zero where that makes no sense) fall back to the defaults. With fewer than 2 segments the component renders nothing and logs a warning.
 
-- `primaryColor` (optional): The primary color of the wheel. Default is `'black'`.
+## Releases
 
-- `contrastColor` (optional): The contrast color used for text and needle. Default is `'white'`.
-
-- `buttonText` (optional): The text displayed in the center button of the wheel. Default is `'Spin'`.
-
-- `isOnlyOnce` (optional): A boolean indicating whether the wheel can be spun only once. Default is `false`.
-
-- `size` (optional): The size of the wheel in pixels. Default is `290`.
-
-- `upDuration` (optional): The duration of the spin-up animation in milliseconds. Default is `100`.
-
-- `downDuration` (optional): The duration of the spin-down animation in milliseconds. Default is `600`.
-
-- `fontFamily` (optional): The font family used for text. Default is `'Arial'`.
-
-- `arrowLocation` (optional): The location of the arrow on the needle, either `'center'` or `'top'`. Default is `'center'`.
-
-- `showTextOnSpin` (optional): A boolean indicating whether to show the spun result text after spinning. Default is `true`.
-
-- `isSpinSound` (optional): A boolean indicating whether to play the spinning audio or not. Default is `true`.
-
-- `responsive` (optional): A boolean indicating whether the wheel should shrink to fit its container, for example on small screens. The wheel never grows beyond its `size`. Set to `false` to always render at a fixed pixel size. Default is `true`.
+See [CHANGELOG.md](CHANGELOG.md) for what changed in each version. The same notes are on the [demo site](https://spin-wheel-game-rho.vercel.app/).
 
 ## Development
 
