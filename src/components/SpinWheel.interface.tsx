@@ -13,6 +13,11 @@ export interface ISpinWheelProps {
   showTextOnSpin?: boolean;
   isSpinSound?: boolean;
   responsive?: boolean;
+  clickToSpin?: 'wheel' | 'button' | 'none';
+}
+
+export interface ISpinWheelHandle {
+  spin: () => void;
 }
 
 export interface ISegments {

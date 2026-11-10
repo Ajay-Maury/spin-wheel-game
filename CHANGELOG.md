@@ -4,6 +4,14 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 
 ## [Unreleased]
 
+### Added
+- `clickToSpin` prop: `'wheel'` (default), `'button'` (only the center button spins) or `'none'`.
+- `spin()` method through a ref (`ISpinWheelHandle`), to start a spin from your own button.
+- Accessibility: the canvas has a role and a label listing the segments, can be focused and spun with Enter or Space, and the result is announced through an `aria-live` region.
+
+### Changed
+- The tick sound is now synthesized instead of an mp3, so every segment gets its own tick (it used to restart one clip) and the bundle shrinks from 40 kB to 8 kB.
+
 ### Fixed
 - The wheel is now sharp on Retina and other high-density screens. The canvas draws at the screen's pixel ratio (up to 3x) and redraws when the window moves to a screen with a different ratio.
 - Long segment labels are no longer cut off at 21 characters. A label that does not fit now ends with an ellipsis ("…") instead.
