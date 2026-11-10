@@ -218,8 +218,8 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     }
   }, []);
 
-  // The tick is synthesized (a short noise burst plus a tone, like a plastic flapper
-  // hitting a peg), so the package ships no audio file and every tick is its own
+  // The tick is synthesized (a short noise burst plus a low tone, like a dry wooden
+  // click), so the package ships no audio file and every tick is its own
   // sound instead of one clip being restarted. The pitch varies a little per tick.
   const playTick = useCallback(() => {
     const audio = audioContextRef.current;
@@ -238,25 +238,25 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     noise.buffer = noiseBufferRef.current;
     const filter = audio.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.value = between(2600, 3200);
-    filter.Q.value = 6;
+    filter.frequency.value = between(1500, 1900);
+    filter.Q.value = 9;
     const noiseGain = audio.createGain();
-    noiseGain.gain.setValueAtTime(1.2, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+    noiseGain.gain.setValueAtTime(1.4, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
     noise.connect(filter).connect(noiseGain).connect(audio.destination);
     noise.start(now);
-    noise.stop(now + 0.04);
+    noise.stop(now + 0.035);
 
     const oscillator = audio.createOscillator();
     const toneGain = audio.createGain();
-    oscillator.type = 'square';
-    oscillator.frequency.setValueAtTime(between(1400, 1700), now);
-    oscillator.frequency.exponentialRampToValueAtTime(700, now + 0.03);
-    toneGain.gain.setValueAtTime(0.25, now);
-    toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(between(520, 600), now);
+    oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+    toneGain.gain.setValueAtTime(0.5, now);
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
     oscillator.connect(toneGain).connect(audio.destination);
     oscillator.start(now);
-    oscillator.stop(now + 0.04);
+    oscillator.stop(now + 0.06);
   }, []);
 
   // Browsers only allow audio after a user gesture, so it is set up when a spin starts
