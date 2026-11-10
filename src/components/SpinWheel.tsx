@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import tickingSound from "../assets/audio/spin-wheel-sound.mp3"
-import { ISpinWheelProps } from './SpinWheel.interface';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { ISpinWheelHandle, ISpinWheelProps } from './SpinWheel.interface';
 
 // Invalid numeric props (NaN, negative, zero where it makes no sense) would turn the
 // wheel angle into NaN and break it for good, so fall back to the defaults.
@@ -21,7 +20,27 @@ const fitText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number) 
   return shortened.trimEnd() + '…';
 };
 
-const SpinWheel: React.FC<ISpinWheelProps> = ({
+// Screen readers should hear the result, but it has no place on screen (the canvas shows it)
+const visuallyHidden: React.CSSProperties = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  margin: -1,
+  padding: 0,
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  whiteSpace: 'nowrap',
+  border: 0,
+};
+
+type AudioContextCtor = typeof AudioContext;
+const getAudioContextCtor = (): AudioContextCtor | undefined =>
+  typeof window === 'undefined'
+    ? undefined
+    : window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: AudioContextCtor }).webkitAudioContext;
+
+const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
   segments = [],
   onFinished,
   primaryColor = 'black',
@@ -35,8 +54,9 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   arrowLocation = 'center',
   showTextOnSpin = true,
   isSpinSound = true,
-  responsive = true
-}: ISpinWheelProps) => {
+  responsive = true,
+  clickToSpin = 'wheel'
+}, ref) => {
   const size = positiveOr(sizeProp, 290);
   const upDuration = Number.isFinite(upDurationProp) && upDurationProp >= 0 ? upDurationProp : 100;
   const downDuration = positiveOr(downDurationProp, 600);
@@ -50,10 +70,11 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   const [isFinished, setFinished] = useState<boolean>(false);
   const [isStarted, setIsStarted] = useState<boolean>(false);
   const [needleText, setNeedleText] = useState<string>("");
+  const [result, setResult] = useState<string>("");
   const [dpr, setDpr] = useState<number>(getDpr);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const ticTicSoundRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const timerHandleRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const angleCurrentRef = useRef(0);
   const spinStartRef = useRef(0);
@@ -181,10 +202,13 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   // so they always call the latest draw function and callback through refs.
   const wheelDrawRef = useRef(wheelDraw);
   const onFinishedRef = useRef(onFinished);
+  const spinRef = useRef(() => {});
   useEffect(() => {
     wheelDrawRef.current = wheelDraw;
     onFinishedRef.current = onFinished;
+    spinRef.current = spin;
   });
+  useImperativeHandle(ref, () => ({ spin: () => spinRef.current() }), []);
 
   const stopTimer = useCallback(() => {
     if (timerHandleRef.current !== null) {
@@ -193,13 +217,34 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     }
   }, []);
 
-  const stopSound = useCallback(() => {
-    const sound = ticTicSoundRef.current;
-    if (sound) {
-      sound.pause(); // Pause tic-tic sound when the wheel stops spinning
-      sound.currentTime = 0; // Reset the tic-tic sound to the beginning
-    }
+  // The tick is synthesized (a few ms of a decaying tone), so the package ships no audio
+  // file and every tick is its own short sound instead of one clip being restarted.
+  const playTick = useCallback(() => {
+    const audio = audioContextRef.current;
+    if (!audio || audio.state !== 'running') return;
+    const now = audio.currentTime;
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(1800, now);
+    oscillator.frequency.exponentialRampToValueAtTime(900, now + 0.03);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    oscillator.connect(gain).connect(audio.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.05);
   }, []);
+
+  // Browsers only allow audio after a user gesture, so it is set up when a spin starts
+  const unlockAudio = () => {
+    if (!isSpinSound) return;
+    if (!audioContextRef.current) {
+      const Ctor = getAudioContextCtor();
+      if (!Ctor) return;
+      audioContextRef.current = new Ctor();
+    }
+    audioContextRef.current.resume().catch(() => { /* blocked until a gesture */ });
+  };
 
   // Total angle a spin travels at speed scale 1. Every spin of a given wheel
   // covers (almost) this same distance, so without a random scale it would
@@ -225,7 +270,6 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     if (!currentSegment) {
       // Nothing to draw any more (segments were emptied or the canvas is gone)
       stopTimer();
-      stopSound();
       return;
     }
     setNeedleText(currentSegment);
@@ -251,17 +295,19 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
       : 0;
     if (finished) {
       stopTimer();
-      stopSound();
       setFinished(true);
+      setResult(currentSegment);
       onFinishedRef.current(currentSegment);
     }
   };
 
   const spin = () => {
-    if (!canSpin) return;
+    if (!canSpin || (isOnlyOnce && isFinished)) return;
     setIsStarted(true);
+    unlockAudio();
     if (timerHandleRef.current === null) {
       setFinished(false);
+      setResult("");
       // Vary the travelled distance by two full turns (rotation is linear in speed),
       // which makes the landing segment uniformly random. The scale never drops
       // below 1, so the wheel never slows down or turns backwards.
@@ -272,14 +318,13 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   };
 
   useEffect(() => {
-    ticTicSoundRef.current = new Audio(tickingSound);
     window.scrollTo(0, 1);
     return () => {
       stopTimer();
-      stopSound();
-      ticTicSoundRef.current = null;
+      audioContextRef.current?.close().catch(() => { /* already closed */ });
+      audioContextRef.current = null;
     };
-  }, [stopTimer, stopSound]);
+  }, [stopTimer]);
 
   // Re-render when the page moves to a screen with a different pixel ratio
   useEffect(() => {
@@ -293,26 +338,48 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   const segmentsKey = JSON.stringify(segments);
   useEffect(() => {
     // The canvas is an external system; the needle text mirrors what it just drew
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNeedleText(wheelDraw());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [segmentsKey, primaryColor, contrastColor, buttonText, size, fontFamily, arrowLocation, dpr]);
 
+  // One tick each time the needle moves onto a new segment
   useEffect(() => {
-    const sound = ticTicSoundRef.current;
-    if (!sound) return;
-    sound.currentTime = 0;
-    if (needleText && isSpinSound && isStarted && !isFinished) {
-      sound.play().catch(() => { /* autoplay may be blocked */ });
-    } else {
-      sound.pause();
-    }
-  }, [needleText, isSpinSound, isStarted, isFinished]);
+    if (needleText && isSpinSound && isStarted && !isFinished) playTick();
+  }, [needleText, isSpinSound, isStarted, isFinished, playTick]);
 
   // The canvas backing store is size * 2 * dpr pixels while its displayed size scales down, so the wheel shrinks to fit narrow containers but never grows past `size`.
   const wrapperStyle: React.CSSProperties | undefined = responsive
     ? { width: '100%', maxWidth: size * 2, minWidth: 0 }
     : undefined;
+
+  const interactive = clickToSpin !== 'none';
+  const locked = isOnlyOnce && isFinished;
+
+  // True when a pointer event is over the center button (canvas units are size * 2 wide)
+  const isOverButton = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    if (!rect.width) return false;
+    const toCanvas = (size * 2) / rect.width;
+    const dx = (event.clientX - rect.left) * toCanvas - centerX;
+    const dy = (event.clientY - rect.top) * toCanvas - centerY;
+    return Math.hypot(dx, dy) <= buttonRadius;
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (clickToSpin === 'wheel' || (clickToSpin === 'button' && isOverButton(event))) spin();
+  };
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (clickToSpin !== 'button') return;
+    event.currentTarget.style.cursor = isOverButton(event) && !locked ? 'pointer' : 'default';
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLCanvasElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      spin();
+    }
+  };
 
   if (!canSpin) {
     console.warn('SpinWheel: at least 2 segments with segmentText are required.');
@@ -323,23 +390,34 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     <div style={wrapperStyle}>
       <canvas
         ref={canvasRef}
+        role={interactive ? 'button' : 'img'}
+        aria-label={`${interactive ? `${buttonText}: ` : ''}Wheel with ${segmentTextArray.length} segments: ${segmentTextArray.join(', ')}`}
+        aria-disabled={interactive && locked ? true : undefined}
+        tabIndex={interactive && !locked ? 0 : undefined}
+        onKeyDown={interactive ? handleKeyDown : undefined}
+        onMouseMove={handleMouseMove}
         width={Math.round(size * 2 * dpr)}
         height={Math.round(size * 2 * dpr)}
-        onClick={spin}
+        onClick={handleClick}
         style={{
           borderRadius: '50%', // Circular shape
           ...(responsive
             ? { display: 'block', width: '100%', height: 'auto' }
             : { width: size * 2, height: size * 2 }),
-          pointerEvents: isFinished && isOnlyOnce ? 'none' : 'auto',
+          cursor: clickToSpin === 'wheel' && !locked ? 'pointer' : 'default',
+          pointerEvents: locked ? 'none' : 'auto',
         }}
       />
+      <div role="status" aria-live="polite" style={visuallyHidden}>
+        {result && `Result: ${result}`}
+      </div>
       {showTextOnSpin && isStarted &&
         <div style={{ textAlign: "center", padding: "20px", fontWeight: "bold", fontSize: "1.5em", fontFamily: fontFamily }}>
           {needleText}
         </div>}
     </div>
   );
-};
+});
+SpinWheel.displayName = 'SpinWheel';
 
 export default SpinWheel

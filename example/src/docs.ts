@@ -16,6 +16,7 @@ export const defaults: Required<Controlled> = {
   showTextOnSpin: true,
   isSpinSound: true,
   responsive: true,
+  clickToSpin: 'wheel',
 };
 
 export const propDocs: { name: string; type: string; default: string; description: string }[] = [
@@ -33,4 +34,5 @@ export const propDocs: { name: string; type: string; default: string; descriptio
   { name: 'showTextOnSpin', type: 'boolean', default: 'true', description: 'Show the segment under the needle below the wheel while spinning.' },
   { name: 'isSpinSound', type: 'boolean', default: 'true', description: 'Play the tick sound while spinning.' },
   { name: 'responsive', type: 'boolean', default: 'true', description: 'Shrink to fit the container. The wheel never grows past size. Use false for a fixed pixel size.' },
+  { name: 'clickToSpin', type: "'wheel' | 'button' | 'none'", default: "'wheel'", description: 'What starts a spin when clicked: the whole wheel, only the center button, or nothing (use the spin() method on a ref). The wheel is also keyboard accessible (Enter or Space) unless this is none.' },
 ];

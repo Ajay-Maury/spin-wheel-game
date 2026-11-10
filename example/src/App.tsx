@@ -151,6 +151,13 @@ function Playground() {
               <option value="top">top</option>
             </select>
           </label>
+          <label className="row">Click to spin
+            <select value={settings.clickToSpin} onChange={(e) => set('clickToSpin', e.target.value as Settings['clickToSpin'])}>
+              <option value="wheel">wheel</option>
+              <option value="button">button</option>
+              <option value="none">none</option>
+            </select>
+          </label>
           <label className="row">Size <span className="range"><input type="range" min={100} max={290} value={settings.size} onChange={number('size')} /><output>{settings.size}</output></span></label>
         </section>
 

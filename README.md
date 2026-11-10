@@ -90,8 +90,27 @@ export default MySpinWheel;
 | `showTextOnSpin` | `boolean` | `true` | Show the segment under the needle below the wheel while spinning. |
 | `isSpinSound` | `boolean` | `true` | Play the tick sound while spinning. |
 | `responsive` | `boolean` | `true` | Shrink to fit the container. The wheel never grows past `size`. Use `false` for a fixed pixel size. |
+| `clickToSpin` | `'wheel' \| 'button' \| 'none'` | `'wheel'` | What starts a spin when clicked: the whole wheel, only the center button, or nothing (use `spin()` on a ref). |
 
 Invalid values for `size`, `upDuration` and `downDuration` (`NaN`, negative, or zero where that makes no sense) fall back to the defaults. With fewer than 2 segments the component renders nothing and logs a warning.
+
+## Spinning from your own button
+
+Set `clickToSpin="none"` and call `spin()` through a ref:
+
+```tsx
+import { useRef } from 'react';
+import { SpinWheel, ISpinWheelHandle } from 'spin-wheel-game';
+
+const wheel = useRef<ISpinWheelHandle>(null);
+
+<SpinWheel ref={wheel} clickToSpin="none" segments={segments} onFinished={onFinished} />
+<button onClick={() => wheel.current?.spin()}>Spin</button>
+```
+
+## Accessibility
+
+The canvas has a `button` role (or `img` when `clickToSpin="none"`) and a label listing the segments. It can be focused and spun with Enter or Space, and the winning segment is announced to screen readers through a live region.
 
 ## Releases
 
