@@ -4,13 +4,15 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-10
+
 ### Added
 - `clickToSpin` prop: `'wheel'` (default), `'button'` (only the center button spins) or `'none'`.
 - `spin()` method through a ref (`ISpinWheelHandle`), to start a spin from your own button.
 - Accessibility: the canvas has a role and a label listing the segments, can be focused and spun with Enter or Space, and the result is announced through an `aria-live` region.
 
 ### Changed
-- The tick sound is now synthesized instead of an mp3, so every segment gets its own tick (it used to restart one clip) and the bundle shrinks from 40 kB to 8 kB.
+- The tick sound is now synthesized instead of an mp3, so every segment gets its own tick (it used to restart one clip) and the bundle shrinks from 40 kB to 8 kB. The tick is a dry wood click.
 
 ### Fixed
 - The wheel is now sharp on Retina and other high-density screens. The canvas draws at the screen's pixel ratio (up to 3x) and redraws when the window moves to a screen with a different ratio.
@@ -74,7 +76,8 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 ### Changed
 - First release published under the plain name `spin-wheel-game` on npm. The package config used to point at GitHub Packages as `@ajay-maury/spin-wheel-game`.
 
-[Unreleased]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/Ajay-Maury/spin-wheel-game/releases/tag/v1.3.1
 [1.3.0]: https://github.com/Ajay-Maury/spin-wheel-game/commit/e15d796
