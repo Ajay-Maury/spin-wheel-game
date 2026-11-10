@@ -6,7 +6,6 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 
 ### Added
 - `clickToSpin` prop: `'wheel'` (default), `'button'` (only the center button spins) or `'none'`.
-- `tickSound` prop: `'wood'` (default) or `'coin'`, a metallic ping.
 - `spin()` method through a ref (`ISpinWheelHandle`), to start a spin from your own button.
 - Accessibility: the canvas has a role and a label listing the segments, can be focused and spun with Enter or Space, and the result is announced through an `aria-live` region.
 

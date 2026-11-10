@@ -54,7 +54,6 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
   arrowLocation = 'center',
   showTextOnSpin = true,
   isSpinSound = true,
-  tickSound = 'wood',
   responsive = true,
   clickToSpin = 'wheel'
 }, ref) => {
@@ -228,23 +227,6 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     const now = audio.currentTime;
     const between = (min: number, max: number) => min + Math.random() * (max - min);
 
-    if (tickSound === 'coin') {
-      // A metallic ping: a few inharmonic partials that ring out
-      const base = between(1900, 2200);
-      [[1, 0.35, 0.16], [2.76, 0.22, 0.1], [5.4, 0.12, 0.06]].forEach(([ratio, volume, decay]) => {
-        const partial = audio.createOscillator();
-        const partialGain = audio.createGain();
-        partial.type = 'sine';
-        partial.frequency.value = base * ratio;
-        partialGain.gain.setValueAtTime(volume, now);
-        partialGain.gain.exponentialRampToValueAtTime(0.0001, now + decay);
-        partial.connect(partialGain).connect(audio.destination);
-        partial.start(now);
-        partial.stop(now + decay + 0.01);
-      });
-      return;
-    }
-
     if (!noiseBufferRef.current) {
       const buffer = audio.createBuffer(1, Math.ceil(audio.sampleRate * 0.05), audio.sampleRate);
       const data = buffer.getChannelData(0);
@@ -275,7 +257,7 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     oscillator.connect(toneGain).connect(audio.destination);
     oscillator.start(now);
     oscillator.stop(now + 0.06);
-  }, [tickSound]);
+  }, []);
 
   // Browsers only allow audio after a user gesture, so it is set up when a spin starts
   const unlockAudio = () => {
