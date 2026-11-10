@@ -75,6 +75,7 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const noiseBufferRef = useRef<AudioBuffer | null>(null);
   const timerHandleRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const angleCurrentRef = useRef(0);
   const spinStartRef = useRef(0);
@@ -217,22 +218,45 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     }
   }, []);
 
-  // The tick is synthesized (a few ms of a decaying tone), so the package ships no audio
-  // file and every tick is its own short sound instead of one clip being restarted.
+  // The tick is synthesized (a short noise burst plus a tone, like a plastic flapper
+  // hitting a peg), so the package ships no audio file and every tick is its own
+  // sound instead of one clip being restarted. The pitch varies a little per tick.
   const playTick = useCallback(() => {
     const audio = audioContextRef.current;
     if (!audio || audio.state !== 'running') return;
     const now = audio.currentTime;
+    const between = (min: number, max: number) => min + Math.random() * (max - min);
+
+    if (!noiseBufferRef.current) {
+      const buffer = audio.createBuffer(1, Math.ceil(audio.sampleRate * 0.05), audio.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      noiseBufferRef.current = buffer;
+    }
+
+    const noise = audio.createBufferSource();
+    noise.buffer = noiseBufferRef.current;
+    const filter = audio.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = between(2600, 3200);
+    filter.Q.value = 6;
+    const noiseGain = audio.createGain();
+    noiseGain.gain.setValueAtTime(1.2, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+    noise.connect(filter).connect(noiseGain).connect(audio.destination);
+    noise.start(now);
+    noise.stop(now + 0.04);
+
     const oscillator = audio.createOscillator();
-    const gain = audio.createGain();
-    oscillator.type = 'triangle';
-    oscillator.frequency.setValueAtTime(1800, now);
-    oscillator.frequency.exponentialRampToValueAtTime(900, now + 0.03);
-    gain.gain.setValueAtTime(0.25, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-    oscillator.connect(gain).connect(audio.destination);
+    const toneGain = audio.createGain();
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(between(1400, 1700), now);
+    oscillator.frequency.exponentialRampToValueAtTime(700, now + 0.03);
+    toneGain.gain.setValueAtTime(0.25, now);
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+    oscillator.connect(toneGain).connect(audio.destination);
     oscillator.start(now);
-    oscillator.stop(now + 0.05);
+    oscillator.stop(now + 0.04);
   }, []);
 
   // Browsers only allow audio after a user gesture, so it is set up when a spin starts
@@ -323,6 +347,7 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
       stopTimer();
       audioContextRef.current?.close().catch(() => { /* already closed */ });
       audioContextRef.current = null;
+      noiseBufferRef.current = null;
     };
   }, [stopTimer]);
 
