@@ -4,6 +4,12 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 
 ## [Unreleased]
 
+### Fixed
+- The wheel is now sharp on Retina and other high-density screens. The canvas draws at the screen's pixel ratio (up to 3x) and redraws when the window moves to a screen with a different ratio.
+- Long segment labels are no longer cut off at 21 characters. A label that does not fit now ends with an ellipsis ("…") instead.
+- The label font, center button and needle now scale with `size`, so small and large wheels look the same as the default one.
+- With `arrowLocation="top"`, the needle is shorter and no longer covers the label of the segment it points at.
+
 ## [1.4.0] - 2026-11-04
 
 ### Added

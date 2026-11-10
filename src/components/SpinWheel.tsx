@@ -7,6 +7,20 @@ import { ISpinWheelProps } from './SpinWheel.interface';
 const positiveOr = (value: number, fallback: number) =>
   Number.isFinite(value) && value > 0 ? value : fallback;
 
+const MAX_DPR = 3;
+const getDpr = () =>
+  typeof window === 'undefined' ? 1 : Math.min(Math.max(window.devicePixelRatio || 1, 1), MAX_DPR);
+
+// Shortens text with an ellipsis until it fits in maxWidth (the font must already be set)
+const fitText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number) => {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let shortened = text;
+  while (shortened.length > 1 && ctx.measureText(shortened + '…').width > maxWidth) {
+    shortened = shortened.slice(0, -1);
+  }
+  return shortened.trimEnd() + '…';
+};
+
 const SpinWheel: React.FC<ISpinWheelProps> = ({
   segments = [],
   onFinished,
@@ -36,6 +50,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   const [isFinished, setFinished] = useState<boolean>(false);
   const [isStarted, setIsStarted] = useState<boolean>(false);
   const [needleText, setNeedleText] = useState<string>("");
+  const [dpr, setDpr] = useState<number>(getDpr);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ticTicSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -50,6 +65,14 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   const maxSpeed = Math.PI / segmentTextArray.length;
   const centerX = size;
   const centerY = size;
+  // Everything is laid out for the default size (290) and scaled from there
+  const scale = size / 290;
+  const fontPx = Math.max(9, 16 * scale);
+  const buttonRadius = 30 * scale;
+  // Needle pointing in from the top rim: labels must stop before its tip
+  const topNeedleTip = size * 0.86;
+  const labelInner = buttonRadius + 10 * scale;
+  const labelOuter = arrowLocation === 'top' ? topNeedleTip - 6 * scale : size - 10 * scale;
 
   const drawSegment = (ctx: CanvasRenderingContext2D, key: number, lastAngle: number, angle: number) => {
     const value = segmentTextArray[key]
@@ -66,8 +89,12 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     ctx.translate(centerX, centerY)
     ctx.rotate((lastAngle + angle) / 2)
     ctx.fillStyle = contrastColor
-    ctx.font = 'bold 1em ' + fontFamily
-    ctx.fillText(value.substring(0, 21), size / 2 + 20, 0)
+    ctx.font = `bold ${fontPx}px ${fontFamily}`
+    ctx.fillText(
+      fitText(ctx, value, labelOuter - labelInner),
+      (labelInner + labelOuter) / 2,
+      0
+    )
     ctx.restore()
   }
 
@@ -79,7 +106,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     ctx.strokeStyle = primaryColor
     ctx.textBaseline = 'middle'
     ctx.textAlign = 'center'
-    ctx.font = '1em ' + fontFamily
+    ctx.font = `${fontPx}px ${fontFamily}`
     for (let i = 1; i <= len; i++) {
       const angle = PI2 * (i / len) + angleCurrentRef.current
       drawSegment(ctx, i - 1, lastAngle, angle)
@@ -88,16 +115,16 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
 
     // Draw a center circle
     ctx.beginPath()
-    ctx.arc(centerX, centerY, 30, 0, PI2, false)
+    ctx.arc(centerX, centerY, buttonRadius, 0, PI2, false)
     ctx.closePath()
     ctx.fillStyle = primaryColor
     ctx.lineWidth = 2
     ctx.strokeStyle = contrastColor
     ctx.fill()
-    ctx.font = 'bold 1em ' + fontFamily
+    ctx.font = `bold ${fontPx}px ${fontFamily}`
     ctx.fillStyle = contrastColor
     ctx.textAlign = 'center'
-    ctx.fillText(buttonText, centerX, centerY + 3)
+    ctx.fillText(fitText(ctx, buttonText, buttonRadius * 2 - 6 * scale), centerX, centerY + 3 * scale)
     ctx.stroke()
 
     // Draw outer circle
@@ -118,12 +145,12 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     ctx.beginPath()
 
     if (arrowLocation === "top") {
-      ctx.moveTo(centerX + 20, centerY / 15)
-      ctx.lineTo(centerX - 20, centerY / 15)
-      ctx.lineTo(centerX, centerY - (centerY / 1.35))
+      ctx.moveTo(centerX + 20 * scale, 4 * scale)
+      ctx.lineTo(centerX - 20 * scale, 4 * scale)
+      ctx.lineTo(centerX, centerY - topNeedleTip)
     } else {
-      ctx.moveTo(centerX + 20, centerY - 30)
-      ctx.lineTo(centerX - 20, centerY - 30)
+      ctx.moveTo(centerX + 20 * scale, centerY - buttonRadius)
+      ctx.lineTo(centerX - 20 * scale, centerY - buttonRadius)
       ctx.lineTo(centerX, centerY - (centerY / 2.5))
     }
 
@@ -143,6 +170,8 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
   const wheelDraw = (): string => {
     const ctx = canvasRef.current?.getContext('2d')
     if (!ctx || !canSpin) return ''
+    // Draw in CSS-pixel units; the backing store is dpr times larger for sharpness
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, size * 2, size * 2)
     drawWheel(ctx)
     return drawNeedle(ctx)
@@ -252,6 +281,14 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     };
   }, [stopTimer, stopSound]);
 
+  // Re-render when the page moves to a screen with a different pixel ratio
+  useEffect(() => {
+    const query = window.matchMedia?.(`(resolution: ${dpr}dppx)`);
+    const update = () => setDpr(getDpr());
+    query?.addEventListener('change', update);
+    return () => query?.removeEventListener('change', update);
+  }, [dpr]);
+
   // Redraw whenever the wheel's appearance changes (props, or a new spin position)
   const segmentsKey = JSON.stringify(segments);
   useEffect(() => {
@@ -259,7 +296,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setNeedleText(wheelDraw());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [segmentsKey, primaryColor, contrastColor, buttonText, size, fontFamily, arrowLocation]);
+  }, [segmentsKey, primaryColor, contrastColor, buttonText, size, fontFamily, arrowLocation, dpr]);
 
   useEffect(() => {
     const sound = ticTicSoundRef.current;
@@ -272,8 +309,7 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     }
   }, [needleText, isSpinSound, isStarted, isFinished]);
 
-  // The canvas keeps its drawing resolution (size * 2) and only its displayed size
-  // scales down, so the wheel shrinks to fit narrow containers but never grows past `size`.
+  // The canvas backing store is size * 2 * dpr pixels while its displayed size scales down, so the wheel shrinks to fit narrow containers but never grows past `size`.
   const wrapperStyle: React.CSSProperties | undefined = responsive
     ? { width: '100%', maxWidth: size * 2, minWidth: 0 }
     : undefined;
@@ -287,12 +323,14 @@ const SpinWheel: React.FC<ISpinWheelProps> = ({
     <div style={wrapperStyle}>
       <canvas
         ref={canvasRef}
-        width={size * 2}
-        height={size * 2}
+        width={Math.round(size * 2 * dpr)}
+        height={Math.round(size * 2 * dpr)}
         onClick={spin}
         style={{
           borderRadius: '50%', // Circular shape
-          ...(responsive && { display: 'block', width: '100%', height: 'auto' }),
+          ...(responsive
+            ? { display: 'block', width: '100%', height: 'auto' }
+            : { width: size * 2, height: size * 2 }),
           pointerEvents: isFinished && isOnlyOnce ? 'none' : 'auto',
         }}
       />
