@@ -17,6 +17,8 @@ Try the [live demo](https://spin-wheel-game-rho.vercel.app/). It has a playgroun
 - Any number of segments (2 or more), each with its own text and color
 - Shrinks to fit its container, so it works on phones (`responsive`)
 - Optional tick sound while spinning
+- Accessible: keyboard support, screen-reader label and announced result
+- Start a spin from your own button with a ref (`clickToSpin`, `spin()`)
 - Written in TypeScript, typings included
 - Works with React 18 and newer, and several wheels can share a page
 
@@ -64,6 +66,7 @@ const MySpinWheel: React.FC = () => {
     showTextOnSpin: true,
     isSpinSound: true,
     responsive: true,
+    clickToSpin: 'wheel',
   };
 
   return <SpinWheel {...spinWheelProps} />;
