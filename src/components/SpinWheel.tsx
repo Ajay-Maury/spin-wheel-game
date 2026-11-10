@@ -228,10 +228,29 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     const now = audio.currentTime;
     const between = (min: number, max: number) => min + Math.random() * (max - min);
 
+    if (!noiseBufferRef.current) {
+      const buffer = audio.createBuffer(1, Math.ceil(audio.sampleRate * 0.05), audio.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      noiseBufferRef.current = buffer;
+    }
+
     if (tickSound === 'coin') {
       // A metallic ping: a few inharmonic partials that ring out
       const base = between(1900, 2200);
-      [[1, 0.35, 0.16], [2.76, 0.22, 0.1], [5.4, 0.12, 0.06]].forEach(([ratio, volume, decay]) => {
+      // A bright, very short click on top gives the ping a sharp attack
+      const click = audio.createBufferSource();
+      click.buffer = noiseBufferRef.current;
+      const clickFilter = audio.createBiquadFilter();
+      clickFilter.type = 'highpass';
+      clickFilter.frequency.value = 5000;
+      const clickGain = audio.createGain();
+      clickGain.gain.setValueAtTime(2, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.012);
+      click.connect(clickFilter).connect(clickGain).connect(audio.destination);
+      click.start(now);
+      click.stop(now + 0.02);
+      [[1, 0.6, 0.2], [2.76, 0.35, 0.14], [5.4, 0.2, 0.08]].forEach(([ratio, volume, decay]) => {
         const partial = audio.createOscillator();
         const partialGain = audio.createGain();
         partial.type = 'sine';
@@ -243,13 +262,6 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
         partial.stop(now + decay + 0.01);
       });
       return;
-    }
-
-    if (!noiseBufferRef.current) {
-      const buffer = audio.createBuffer(1, Math.ceil(audio.sampleRate * 0.05), audio.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-      noiseBufferRef.current = buffer;
     }
 
     const noise = audio.createBufferSource();
