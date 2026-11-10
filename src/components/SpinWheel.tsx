@@ -239,9 +239,9 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     const filter = audio.createBiquadFilter();
     filter.type = 'bandpass';
     filter.frequency.value = between(1500, 1900);
-    filter.Q.value = 9;
+    filter.Q.value = 2.5;
     const noiseGain = audio.createGain();
-    noiseGain.gain.setValueAtTime(1.4, now);
+    noiseGain.gain.setValueAtTime(4, now);
     noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
     noise.connect(filter).connect(noiseGain).connect(audio.destination);
     noise.start(now);
@@ -252,7 +252,7 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     oscillator.type = 'sine';
     oscillator.frequency.setValueAtTime(between(520, 600), now);
     oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.05);
-    toneGain.gain.setValueAtTime(0.5, now);
+    toneGain.gain.setValueAtTime(0.9, now);
     toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
     oscillator.connect(toneGain).connect(audio.destination);
     oscillator.start(now);
