@@ -15,6 +15,7 @@ export const defaults: Required<Controlled> = {
   arrowLocation: 'center',
   showTextOnSpin: true,
   isSpinSound: true,
+  tickSound: 'wood',
   responsive: true,
   clickToSpin: 'wheel',
 };
@@ -33,6 +34,7 @@ export const propDocs: { name: string; type: string; default: string; descriptio
   { name: 'arrowLocation', type: "'center' | 'top'", default: "'center'", description: 'Where the needle is drawn.' },
   { name: 'showTextOnSpin', type: 'boolean', default: 'true', description: 'Show the segment under the needle below the wheel while spinning.' },
   { name: 'isSpinSound', type: 'boolean', default: 'true', description: 'Play the tick sound while spinning.' },
+  { name: 'tickSound', type: "'wood' | 'coin'", default: "'wood'", description: 'Style of the tick played on each segment: a dry wood click or a metallic coin ping. Needs isSpinSound.' },
   { name: 'responsive', type: 'boolean', default: 'true', description: 'Shrink to fit the container. The wheel never grows past size. Use false for a fixed pixel size.' },
   { name: 'clickToSpin', type: "'wheel' | 'button' | 'none'", default: "'wheel'", description: 'What starts a spin when clicked: the whole wheel, only the center button, or nothing (use the spin() method on a ref). The wheel is also keyboard accessible (Enter or Space) unless this is none.' },
 ];

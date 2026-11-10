@@ -13,6 +13,7 @@ export interface ISpinWheelProps {
   showTextOnSpin?: boolean;
   isSpinSound?: boolean;
   responsive?: boolean;
+  tickSound?: 'wood' | 'coin';
   clickToSpin?: 'wheel' | 'button' | 'none';
 }
 

@@ -89,6 +89,7 @@ export default MySpinWheel;
 | `arrowLocation` | `'center' \| 'top'` | `'center'` | Where the needle is drawn. |
 | `showTextOnSpin` | `boolean` | `true` | Show the segment under the needle below the wheel while spinning. |
 | `isSpinSound` | `boolean` | `true` | Play the tick sound while spinning. |
+| `tickSound` | `'wood' \| 'coin'` | `'wood'` | Style of the tick on each segment: a dry wood click or a metallic coin ping. Needs `isSpinSound`. |
 | `responsive` | `boolean` | `true` | Shrink to fit the container. The wheel never grows past `size`. Use `false` for a fixed pixel size. |
 | `clickToSpin` | `'wheel' \| 'button' \| 'none'` | `'wheel'` | What starts a spin when clicked: the whole wheel, only the center button, or nothing (use `spin()` on a ref). |
 

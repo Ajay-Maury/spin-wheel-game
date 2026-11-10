@@ -151,6 +151,12 @@ function Playground() {
               <option value="top">top</option>
             </select>
           </label>
+          <label className="row">Tick sound
+            <select value={settings.tickSound} onChange={(e) => set('tickSound', e.target.value as Settings['tickSound'])}>
+              <option value="wood">wood</option>
+              <option value="coin">coin</option>
+            </select>
+          </label>
           <label className="row">Click to spin
             <select value={settings.clickToSpin} onChange={(e) => set('clickToSpin', e.target.value as Settings['clickToSpin'])}>
               <option value="wheel">wheel</option>
