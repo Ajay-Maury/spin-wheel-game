@@ -4,8 +4,11 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-11-12
+
 ### Added
 - A Sponsor button on the demo site and in the README, a GitHub `FUNDING.yml`, and a `funding` field in `package.json` so npm shows a "Fund" link.
+- A demo GIF in the README.
 
 ## [1.5.0] - 2026-11-10
 
@@ -79,7 +82,8 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 ### Changed
 - First release published under the plain name `spin-wheel-game` on npm. The package config used to point at GitHub Packages as `@ajay-maury/spin-wheel-game`.
 
-[Unreleased]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Ajay-Maury/spin-wheel-game/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/Ajay-Maury/spin-wheel-game/releases/tag/v1.3.1
