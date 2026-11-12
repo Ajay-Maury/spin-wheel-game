@@ -9,6 +9,10 @@ A customizable spin wheel (prize wheel / wheel of fortune) component for React. 
 
 ## Demo
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Ajay-Maury/spin-wheel-game/main/docs/demo.gif" alt="The spin wheel spinning and slowing down onto a segment" width="320">
+</p>
+
 Try the [live demo](https://spin-wheel-game-rho.vercel.app/). It has a playground where you can change the props, the full docs, and the release notes.
 
 ## Features
