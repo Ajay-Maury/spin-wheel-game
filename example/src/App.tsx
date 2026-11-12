@@ -227,6 +227,7 @@ function App() {
             <div className="cta">
               <a className="btn btn-primary" href="#playground">Try the playground</a>
               <a className="btn" href={REPO}>★ Star on GitHub</a>
+              <a className="btn" href={SPONSOR}>♥ Sponsor</a>
             </div>
             <p className="badges">
               <a href={NPM}><img alt="npm version" src="https://img.shields.io/npm/v/spin-wheel-game.svg" /></a>
