@@ -4,6 +4,9 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 
 ## [Unreleased]
 
+### Added
+- A Sponsor button on the demo site and in the README, a GitHub `FUNDING.yml`, and a `funding` field in `package.json` so npm shows a "Fund" link.
+
 ## [1.5.0] - 2026-11-10
 
 ### Added

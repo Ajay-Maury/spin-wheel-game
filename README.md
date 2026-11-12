@@ -132,7 +132,7 @@ npm run build   # type-check and build the library into dist/
 
 ## Support
 
-If this package saved you time, please [star it on GitHub](https://github.com/Ajay-Maury/spin-wheel-game). It helps other developers find it. You can also share the [demo](https://spin-wheel-game-rho.vercel.app/), [report a bug or suggest an idea](https://github.com/Ajay-Maury/spin-wheel-game/issues), or send a pull request.
+If this package saved you time, please [star it on GitHub](https://github.com/Ajay-Maury/spin-wheel-game). It helps other developers find it. You can also [sponsor the project](https://github.com/sponsors/Ajay-Maury) to help keep it maintained, share the [demo](https://spin-wheel-game-rho.vercel.app/), [report a bug or suggest an idea](https://github.com/Ajay-Maury/spin-wheel-game/issues), or send a pull request.
 
 ## Contributing
 
