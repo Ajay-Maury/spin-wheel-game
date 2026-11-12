@@ -48,6 +48,10 @@
     "url": "https://github.com/Ajay-Maury/spin-wheel-game/issues"
   },
   "homepage": "https://spin-wheel-game-rho.vercel.app/",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/Ajay-Maury"
+  },
   "scripts": {
     "dev": "vite",
     "prepublish": "npm run build",

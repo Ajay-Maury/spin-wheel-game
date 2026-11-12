@@ -5,6 +5,7 @@ import Changelog from './Changelog';
 import { defaults, propDocs } from './docs';
 
 const REPO = 'https://github.com/Ajay-Maury/spin-wheel-game';
+const SPONSOR = 'https://github.com/sponsors/Ajay-Maury';
 const NPM = 'https://www.npmjs.com/package/spin-wheel-game';
 const SITE = 'https://spin-wheel-game-rho.vercel.app/';
 
@@ -187,10 +188,11 @@ function Support() {
     <div className="card support">
       <div>
         <h2>Like it? Support it</h2>
-        <p>spin-wheel-game is free and open source. If it saved you some time, a star on GitHub helps other developers find it, and it tells me it is worth keeping up.</p>
+        <p>spin-wheel-game is free and open source. If it saved you some time, a star on GitHub helps other developers find it, and sponsoring helps me keep it maintained.</p>
       </div>
       <div className="support-actions">
         <a className="btn btn-primary" href={REPO}>★ Star on GitHub</a>
+        <a className="btn" href={SPONSOR}>♥ Sponsor</a>
         <button type="button" className="btn" onClick={copy}>{copied ? 'Link copied' : 'Share this page'}</button>
         <a className="btn" href={`${REPO}/issues`}>Report a bug or idea</a>
         <a className="btn" href={`${REPO}/blob/main/CONTRIBUTING.md`}>Contribute</a>
