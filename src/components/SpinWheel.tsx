@@ -40,6 +40,8 @@ const getAudioContextCtor = (): AudioContextCtor | undefined =>
     : window.AudioContext ??
       (window as unknown as { webkitAudioContext?: AudioContextCtor }).webkitAudioContext;
 
+const MAX_CUSTOM_TICK_SECONDS = 0.15;
+
 const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
   segments = [],
   onFinished,
@@ -54,12 +56,15 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
   arrowLocation = 'center',
   showTextOnSpin = true,
   isSpinSound = true,
+  tickSound = '',
+  tickVolume: tickVolumeProp = 1,
   responsive = true,
   clickToSpin = 'wheel'
 }, ref) => {
   const size = positiveOr(sizeProp, 290);
   const upDuration = Number.isFinite(upDurationProp) && upDurationProp >= 0 ? upDurationProp : 100;
   const downDuration = positiveOr(downDurationProp, 600);
+  const tickVolume = Number.isFinite(tickVolumeProp) ? Math.min(Math.max(tickVolumeProp, 0), 1) : 1;
 
   // Drop segments without text first, so text and color stay aligned per segment
   const validSegments = segments.filter((segment) => segment?.segmentText);
@@ -76,6 +81,11 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const noiseBufferRef = useRef<AudioBuffer | null>(null);
+  // A custom tick is only used once its file is decoded; until then (or if loading
+  // fails) the built-in tick plays.
+  const customTickRef = useRef<{ url: string; buffer: AudioBuffer } | null>(null);
+  const tickSoundRef = useRef(tickSound);
+  const tickVolumeRef = useRef(tickVolume);
   const timerHandleRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const angleCurrentRef = useRef(0);
   const spinStartRef = useRef(0);
@@ -208,6 +218,8 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     wheelDrawRef.current = wheelDraw;
     onFinishedRef.current = onFinished;
     spinRef.current = spin;
+    tickSoundRef.current = typeof tickSound === 'string' ? tickSound.trim() : '';
+    tickVolumeRef.current = tickVolume;
   });
   useImperativeHandle(ref, () => ({ spin: () => spinRef.current() }), []);
 
@@ -227,6 +239,26 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     const now = audio.currentTime;
     const between = (min: number, max: number) => min + Math.random() * (max - min);
 
+    const output = audio.createGain();
+    output.gain.value = tickVolumeRef.current;
+    output.connect(audio.destination);
+
+    const custom = customTickRef.current;
+    if (custom && custom.url === tickSoundRef.current) {
+      // Each tick is a short clip; cap it so a long file can't pile up into noise
+      const source = audio.createBufferSource();
+      source.buffer = custom.buffer;
+      const fade = audio.createGain();
+      const end = now + Math.min(custom.buffer.duration, MAX_CUSTOM_TICK_SECONDS);
+      fade.gain.setValueAtTime(1, now);
+      fade.gain.setValueAtTime(1, Math.max(now, end - 0.02));
+      fade.gain.linearRampToValueAtTime(0, end);
+      source.connect(fade).connect(output);
+      source.start(now);
+      source.stop(end);
+      return;
+    }
+
     if (!noiseBufferRef.current) {
       const buffer = audio.createBuffer(1, Math.ceil(audio.sampleRate * 0.05), audio.sampleRate);
       const data = buffer.getChannelData(0);
@@ -243,7 +275,7 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     const noiseGain = audio.createGain();
     noiseGain.gain.setValueAtTime(4, now);
     noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
-    noise.connect(filter).connect(noiseGain).connect(audio.destination);
+    noise.connect(filter).connect(noiseGain).connect(output);
     noise.start(now);
     noise.stop(now + 0.035);
 
@@ -254,7 +286,7 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
     oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.05);
     toneGain.gain.setValueAtTime(0.9, now);
     toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
-    oscillator.connect(toneGain).connect(audio.destination);
+    oscillator.connect(toneGain).connect(output);
     oscillator.start(now);
     oscillator.stop(now + 0.06);
   }, []);
@@ -268,6 +300,37 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
       audioContextRef.current = new Ctor();
     }
     audioContextRef.current.resume().catch(() => { /* blocked until a gesture */ });
+    loadCustomTick(audioContextRef.current);
+  };
+
+  // Fetches and decodes the custom tick once per URL. Any failure (bad URL, CORS,
+  // unsupported format) leaves the built-in tick in place.
+  const loadingTickRef = useRef('');
+  const failedTickRef = useRef('');
+  const loadCustomTick = (audio: AudioContext) => {
+    const url = typeof tickSound === 'string' ? tickSound.trim() : '';
+    if (!url || customTickRef.current?.url === url || loadingTickRef.current === url || failedTickRef.current === url) return;
+    loadingTickRef.current = url;
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then((data) => audio.decodeAudioData(data))
+      .then((buffer) => {
+        // Ignore a file that finished loading after the prop changed or the wheel unmounted
+        if (audioContextRef.current === audio && tickSoundRef.current === url) {
+          customTickRef.current = { url, buffer };
+        }
+      })
+      .catch((error) => {
+        if (audioContextRef.current !== audio) return;
+        failedTickRef.current = url;
+        console.warn(`SpinWheel: could not load tickSound "${url}", using the default tick.`, error);
+      })
+      .finally(() => {
+        if (loadingTickRef.current === url) loadingTickRef.current = '';
+      });
   };
 
   // Total angle a spin travels at speed scale 1. Every spin of a given wheel
@@ -348,6 +411,7 @@ const SpinWheel = forwardRef<ISpinWheelHandle, ISpinWheelProps>(({
       audioContextRef.current?.close().catch(() => { /* already closed */ });
       audioContextRef.current = null;
       noiseBufferRef.current = null;
+      customTickRef.current = null;
     };
   }, [stopTimer]);
 

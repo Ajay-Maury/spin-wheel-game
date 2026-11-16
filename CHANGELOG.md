@@ -4,6 +4,10 @@ All notable changes to `spin-wheel-game` are listed here, newest first. Versions
 
 ## [Unreleased]
 
+### Added
+- `tickSound` prop: a URL to your own tick sound. It is loaded once and played on every segment (capped at 150 ms); if it can't be loaded, the built-in tick is used.
+- `tickVolume` prop (0 to 1) for the tick volume.
+
 ## [1.5.1] - 2026-11-12
 
 ### Added
