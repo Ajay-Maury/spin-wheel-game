@@ -69,6 +69,7 @@ const MySpinWheel: React.FC = () => {
     arrowLocation: 'top',
     showTextOnSpin: true,
     isSpinSound: true,
+    tickVolume: 1,
     responsive: true,
     clickToSpin: 'wheel',
   };
@@ -96,10 +97,34 @@ export default MySpinWheel;
 | `arrowLocation` | `'center' \| 'top'` | `'center'` | Where the needle is drawn. |
 | `showTextOnSpin` | `boolean` | `true` | Show the segment under the needle below the wheel while spinning. |
 | `isSpinSound` | `boolean` | `true` | Play the tick sound while spinning. |
+| `tickSound` | `string` | `''` | Address of your own tick sound file (mp3, wav, ogg), as a string: a path like `/sounds/tick.mp3`, an imported file, a `blob:` URL or a full link. See [Custom tick sound](#custom-tick-sound). Played on every segment, capped at 150 ms. If it can't be loaded, the built-in tick is used. |
+| `tickVolume` | `number` | `1` | Tick volume from 0 to 1. Applies to the built-in and the custom tick. |
 | `responsive` | `boolean` | `true` | Shrink to fit the container. The wheel never grows past `size`. Use `false` for a fixed pixel size. |
 | `clickToSpin` | `'wheel' \| 'button' \| 'none'` | `'wheel'` | What starts a spin when clicked: the whole wheel, only the center button, or nothing (use `spin()` on a ref). |
 
 Invalid values for `size`, `upDuration` and `downDuration` (`NaN`, negative, or zero where that makes no sense) fall back to the defaults. With fewer than 2 segments the component renders nothing and logs a warning.
+
+## Custom tick sound
+
+`tickSound` takes the **URL** of an audio file, which is the address the browser loads it from. It is a string, not a `File` object. Any of these work:
+
+```tsx
+// 1. A file in your public folder (same site, no extra setup)
+<SpinWheel tickSound="/sounds/tick.mp3" ... />
+
+// 2. A file imported through your bundler (Vite, webpack, CRA give you a URL string)
+import tick from './tick.mp3';
+<SpinWheel tickSound={tick} ... />
+
+// 3. A file the user picked, turned into a temporary URL
+const url = URL.createObjectURL(file); // file from <input type="file">
+<SpinWheel tickSound={url} ... />
+
+// 4. A link on another site (that server must allow CORS)
+<SpinWheel tickSound="https://cdn.example.com/tick.mp3" ... />
+```
+
+A `data:audio/mp3;base64,...` string also works. The file is loaded once, played on every segment and cut off at 150 ms, so use a short click. If it can't be loaded (wrong path, no CORS, unsupported format), the built-in tick plays and a warning is logged. Leave `tickSound` out to keep the built-in tick.
 
 ## Spinning from your own button
 

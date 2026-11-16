@@ -12,6 +12,8 @@ export interface ISpinWheelProps {
   arrowLocation?: 'center' | 'top';
   showTextOnSpin?: boolean;
   isSpinSound?: boolean;
+  tickSound?: string;
+  tickVolume?: number;
   responsive?: boolean;
   clickToSpin?: 'wheel' | 'button' | 'none';
 }

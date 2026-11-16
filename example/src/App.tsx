@@ -2,7 +2,7 @@ import { useState } from 'react';
 import "./App.css"
 import { ISegments, ISpinWheelProps, SpinWheel } from '.';
 import Changelog from './Changelog';
-import { defaults, propDocs } from './docs';
+import { defaults, propDocs, tickSoundCode } from './docs';
 
 const REPO = 'https://github.com/Ajay-Maury/spin-wheel-game';
 const SPONSOR = 'https://github.com/sponsors/Ajay-Maury';
@@ -166,6 +166,7 @@ function Playground() {
           <h3 id="pg-behavior">Behavior</h3>
           <label className="row">Spin up <span className="range"><input type="range" min={0} max={400} step={10} value={settings.upDuration} onChange={number('upDuration')} /><output>{settings.upDuration}</output></span></label>
           <label className="row">Spin down <span className="range"><input type="range" min={100} max={1500} step={50} value={settings.downDuration} onChange={number('downDuration')} /><output>{settings.downDuration}</output></span></label>
+          <label className="row">Tick volume <span className="range"><input type="range" min={0} max={1} step={0.1} value={settings.tickVolume} onChange={(e) => set('tickVolume', Number(e.target.value))} /><output>{settings.tickVolume}</output></span></label>
           <div className="checks">
             <label><input type="checkbox" checked={settings.isOnlyOnce} onChange={(e) => set('isOnlyOnce', e.target.checked)} /> isOnlyOnce</label>
             <label><input type="checkbox" checked={settings.showTextOnSpin} onChange={(e) => set('showTextOnSpin', e.target.checked)} /> showTextOnSpin</label>
@@ -282,6 +283,15 @@ function App() {
           <p className="note">
             Invalid values for <code>size</code>, <code>upDuration</code> and <code>downDuration</code> (<code>NaN</code>, negative, or zero where that makes no sense) fall back to the defaults.
             With fewer than 2 segments the component renders nothing and logs a warning.
+          </p>
+          <h3>Custom tick sound</h3>
+          <p className="section-lead">
+            <code>tickSound</code> takes the <strong>URL</strong> of an audio file, which is the address the browser loads it from. It is a string, not a <code>File</code> object. Leave it out to keep the built-in tick.
+          </p>
+          <CodeBlock code={tickSoundCode} label="tsx" />
+          <p className="note">
+            A <code>data:audio/mp3;base64,...</code> string also works. The file is loaded once, played on every segment and cut off at 150 ms, so use a short click.
+            If it can't be loaded (wrong path, no CORS, unsupported format), the built-in tick plays and a warning is logged.
           </p>
         </section>
 

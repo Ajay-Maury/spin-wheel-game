@@ -15,6 +15,8 @@ export const defaults: Required<Controlled> = {
   arrowLocation: 'center',
   showTextOnSpin: true,
   isSpinSound: true,
+  tickSound: '',
+  tickVolume: 1,
   responsive: true,
   clickToSpin: 'wheel',
 };
@@ -33,6 +35,22 @@ export const propDocs: { name: string; type: string; default: string; descriptio
   { name: 'arrowLocation', type: "'center' | 'top'", default: "'center'", description: 'Where the needle is drawn.' },
   { name: 'showTextOnSpin', type: 'boolean', default: 'true', description: 'Show the segment under the needle below the wheel while spinning.' },
   { name: 'isSpinSound', type: 'boolean', default: 'true', description: 'Play the tick sound while spinning.' },
+  { name: 'tickSound', type: 'string', default: "'' (built-in tick)", description: 'Address of your own tick sound file (mp3, wav, ogg), as a string: a path like /sounds/tick.mp3, an imported file, a blob: URL or a full link. See Custom tick sound below. Played on every segment, capped at 150 ms. If it cannot be loaded, the built-in tick is used.' },
+  { name: 'tickVolume', type: 'number', default: '1', description: 'Tick volume from 0 to 1. Applies to the built-in and the custom tick.' },
   { name: 'responsive', type: 'boolean', default: 'true', description: 'Shrink to fit the container. The wheel never grows past size. Use false for a fixed pixel size.' },
   { name: 'clickToSpin', type: "'wheel' | 'button' | 'none'", default: "'wheel'", description: 'What starts a spin when clicked: the whole wheel, only the center button, or nothing (use the spin() method on a ref). The wheel is also keyboard accessible (Enter or Space) unless this is none.' },
 ];
+
+export const tickSoundCode = `// 1. A file in your public folder (same site, no extra setup)
+<SpinWheel tickSound="/sounds/tick.mp3" ... />
+
+// 2. A file imported through your bundler (Vite, webpack, CRA give you a URL string)
+import tick from './tick.mp3';
+<SpinWheel tickSound={tick} ... />
+
+// 3. A file the user picked, turned into a temporary URL
+const url = URL.createObjectURL(file); // file from <input type="file">
+<SpinWheel tickSound={url} ... />
+
+// 4. A link on another site (that server must allow CORS)
+<SpinWheel tickSound="https://cdn.example.com/tick.mp3" ... />`;
